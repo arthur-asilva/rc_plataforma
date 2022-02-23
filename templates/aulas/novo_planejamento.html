@@ -1,0 +1,175 @@
+{% extends '../base.html' %}
+{% load custom_tags %}
+{% block content %}
+{% usuarioNivel as nivel %}
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+  
+      <!-- Main content -->
+      <section class="content" style="padding-top: 10px;">
+        <div class="row">
+          <div class="col-md-3">
+  
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Folders</h3>
+  
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+                  <li class="nav-item active">
+                    <a href="{% url 'planejamentos_view' %}" class="nav-link">
+                      <i class="fas fa-inbox"></i> Respondidos
+                      <span class="badge bg-primary float-right">{{respondidos}}</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'enviados_view' %}" class="nav-link">
+                      <i class="far fa-envelope"></i>
+                      {% if 'TutoriaisCadastroView' in nivel %}
+                      Recebidos
+                      <span class="badge bg-primary float-right">{{recebidos.count}}</span>
+                      {% else %}
+                      Enviados
+                      {% endif %}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-body -->
+            </div>
+        
+          </div>
+          <!-- /.col -->
+          <div class="col-md-9">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">Novo envio</h3>
+              </div>
+              <!-- /.card-header -->
+              <form method="post" class="{% if turmas is not None %}d-none{% endif %}">
+                {% csrf_token %}
+                <div class="card-body">
+                  
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label>Escola</label>
+                        <select name="escola" class="form-control select2" style="width: 100%;">
+                          {% for escola in escolas %}
+                            <option value="{{escola.escola__id}}">{{escola.escola__nome}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label>Turno</label>
+                        <select name="turno" class="form-control select2" style="width: 100%;">
+                          {% for turno in turnos %}
+                            <option value="{{turno.0}}">{{turno.1}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label>Segmento</label>
+                        <select name="segmento" class="form-control select2" style="width: 100%;">
+                          {% for segmento_aula in segmentos_aula %}
+                            <option value="{{segmento_aula.0}}">{{segmento_aula.1}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                      <!-- /.form-group -->
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" required name="data" class="form-control"/>
+                      </div>
+                      <!-- /.form-group -->
+                    </div>
+
+                  </div>
+
+                </div>
+                <div class="card-footer">
+                  <div class="float-right">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Procurar</button>
+                  </div>
+                </div>
+              </form>
+              <!-- /.card-body -->
+              data:application/octet-stream;base64,{{planilha_modelo}}
+              <form method="post" class="{% if turmas is None %}d-none{% endif %}">
+                {% csrf_token %}
+                <div class="card-body">
+                  
+                {% for turma in turmas %}
+                  <div class="text-uppercase font-weight-bold mb-4" style="font-size: 20px;">{{turma.nome}}</div>
+                  {% for i in '0123'|make_list %}
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Tema</label>
+                          <input type="text" size="254" name="tema" class="form-control"/>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Ênfase</label>
+                          <select name="segmento" class="form-control select2" style="width: 100%;">
+                            {% for enfase in enfases %}
+                              <option value="{{enfase.0}}">{{enfase.1}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Data da aula</label>
+                          <input type="date" value="{{dia_aula}}" name="data" class="form-control"/>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label>Objetivo</label>
+                          <textarea name="obejetivo" class="form-control"/></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                {% endfor %}
+              {% endfor %}
+
+              </div>
+                <div class="card-footer">
+                  <div class="float-right">
+                    <button type="submit" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                  </div>
+                </div>
+              </form>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </section>
+    
+    <!-- /.content -->
+  </div>
+
+  {% endblock %}

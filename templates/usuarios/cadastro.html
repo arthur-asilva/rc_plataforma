@@ -1,0 +1,197 @@
+{% extends '../base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+
+
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Cadastros</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+
+
+
+
+            <div class="col-12 col-sm-12">
+                <div class="card card-primary card-outline card-tabs">
+                    <div class="card-header p-0 pt-1 border-bottom-0">
+                        <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true">Usuários</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false">Grupos</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="custom-tabs-three-tabContent">
+                            <div class="tab-pane fade show active" id="custom-tabs-three-home" role="tabpanel" aria-labelledby="custom-tabs-three-home-tab">
+                                
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="escola_add" />
+                                    <div class="card-body">
+                    
+                                      <div class="row">
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label>Nome</label>
+                                            <input type="text" name="nome" class="form-control" {% if editar != 0 %}value="{{editar.nome}}"{% endif %} />
+                                          </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label>Grupo</label>
+                                            <select name="grupo" class="form-control" style="width: 100%;">
+                                              {% for grupo in grupos %}
+                                                <option {% if editar.grupo.id == grupo.id %}selected{% endif %} value="{{grupo.id}}">{{grupo.nome}}</option>
+                                              {% endfor %}
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="row">
+                                        <div class="col-md-8">
+                                          <div class="form-group">
+                                            <label>Email</label>
+                                            <input type="text" name="email" class="form-control" {% if editar != 0 %}value="{{editar.email}}"{% endif %}/>
+                                          </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                          <div class="form-group">
+                                            <label>Telefone</label>
+                                            <input type="text" name="telefone" class="form-control" {% if editar != 0 %}value="{{editar.telefone}}"{% endif %} data-inputmask='"mask": "(99) 99999-9999"' data-mask/>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {% usuarioSegmentos as segmentos %}
+                                      <div class="row">
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label>Segmentos</label>
+                                            <div class="form-check">
+                                              <input {% if editar.id|usuarioSegmentoCheck:'infantil' %}checked{% endif %} value="infantil" name="segmentos" class="form-check-input" type="checkbox">
+                                              <label class="form-check-label">Infantil</label>
+                                            </div>
+                                            <div class="form-check">
+                                              <input {% if editar.id|usuarioSegmentoCheck:'anos_iniciais' %}checked{% endif %} value="anos_iniciais" name="segmentos" class="form-check-input" type="checkbox">
+                                              <label class="form-check-label">Anos iniciais</label>
+                                            </div>
+                                            <div class="form-check">
+                                              <input {% if editar.id|usuarioSegmentoCheck:'anos_finais' %}checked{% endif %} value="anos_finais" name="segmentos" class="form-check-input" type="checkbox">
+                                              <label class="form-check-label">Anos finais</label>
+                                            </div>
+                                            <div class="form-check">
+                                              <input {% if editar.id|usuarioSegmentoCheck:'medio' %}checked{% endif %} value="medio" name="segmentos" class="form-check-input" type="checkbox">
+                                              <label class="form-check-label">Ens. Médio</label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label>Status</label>
+                                            <select name="status" class="form-control" style="width: 100%;">
+                                                <option {% if editar.status %}selected{% endif %} value="1">Ativo</option>
+                                                <option {% if not editar.status %}selected{% endif %} value="0">Pendente</option>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="float-right">
+                                        <a href="{% url 'dash_view' %}" class="btn"><i class="fas fa-reply"></i> Voltar</a>
+                                        <a onClick="showHide('#table_usuarios')" class="btn"><i class="fas fa-eye"></i> Ver todos</a>
+                                        <button type="submit" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                                      </div>
+
+
+                                    </div>
+                                </form>
+
+
+                                <div id="table_usuarios">
+                                  <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Grupo</th>
+                                        <th scope="col">Segmentos</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Controle</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% for usuario in usuarios %}
+                                        <tr>
+                                          <th>{{usuario.nome}}</th>
+                                          <td>{{usuario.email}}</td>
+                                          <td>{{usuario.grupo.nome}}</td>
+                                          <td style="text-transform: capitalize">{{usuario.segmentos|filtroSegmentos:'segmentos'}}</td>
+                                          <td>{{usuario.status|filtroSegmentos:'status'}}</td>
+                                          <td>
+                                            <div class="btn-group">
+                                              <a href="{% url 'add_usuario' %}?id={{usuario.id}}&e=1" class="btn btn-primary"><i class="fas fa-pen"></i></a>
+                                              <a href="#" class="btn btn-danger disabled"><i class="fas fa-trash"></i></a>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+
+
+
+
+
+
+
+
+                            </div>
+                            <div class="tab-pane fade {% if not aba %}show active{% endif %}" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
+                                
+                              
+                                <div class="card-body"></div>
+
+                                <div id="table_grupos">
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                    <!-- /.card -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+  $('#table_usuarios').hide();
+  function showHide(e)
+  {
+    $(e).animate({height: 'toggle'});
+  }
+  $('[data-mask]').inputmask()
+</script>
+
+{% endblock %}

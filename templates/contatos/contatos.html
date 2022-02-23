@@ -1,0 +1,228 @@
+{% extends '../base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+  
+      <!-- Main content -->
+      <section class="content" style="padding-top: 10px;">
+        <div class="row">
+          <div class="col-md-3">
+            {% if adms.count > 0 %}
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Coordenação</h3>
+    
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <ul class="nav nav-pills flex-column">
+                    {% for adm in adms %}
+                      <li class="nav-item active" style="line-height: 40px;">
+                        <a href="{% url 'contatos_view' %}?c={{adm.id|encodeDecode:'encode'}}" class="nav-link">
+                          <img class="direct-chat-img" src="{{adm.foto}}" alt="Message User Image" style="margin-right: 10px;"> {{adm.nome}}
+                          <span class="badge bg-primary float-right" style="margin-top: 10px">-</span>
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <!-- /.card-body -->
+              </div>
+            {% endif %}
+            <!-- /.card -->
+            
+            {% if professores.count > 0 %}
+              <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Professores</h3>
+      
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body p-0">
+                    <ul class="nav nav-pills flex-column">
+                      {% for professor in professores %}
+                        <li class="nav-item active" style="line-height: 40px;">
+                          <a href="{% url 'contatos_view' %}?c={{professor.id|encodeDecode:'encode'}}" class="nav-link">
+                            <img class="direct-chat-img" src="{{professor.foto}}" alt="Message User Image" style="margin-right: 10px;"> {{professor.nome}}
+                            <span class="badge bg-primary float-right" style="margin-top: 10px">-</span>
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+              {% endif %}
+        
+        
+          </div>
+          <!-- /.col -->
+          <div class="col-md-9">
+            {% if conversa != 0 %}
+              <div class="card card-primary card-outline direct-chat direct-chat-primary">
+
+                  <div class="card-header">
+                    <h3 class="card-title">Chat</h3>
+    
+                    <div class="card-tools">
+                      <!-- <span title="3 New Messages" class="badge bg-primary">3</span> -->
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                          <i class="far fa-circle text-success"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    <!-- Conversations are loaded here -->
+                    <div class="direct-chat-messages" id="message_container" style="overflow-y: scroll; height: 350px">
+                    </div>
+                    <!--/.direct-chat-messages-->
+
+                  </div>
+                  <!-- /.card-body -->
+                  <div class="card-footer">
+                      <div class="input-group">
+                        <input type="text" name="message" placeholder="Escreva uma mensagem ..." class="form-control">
+                        <span class="input-group-append">
+                          <button id="send_message" disabled class="btn btn-primary">Enviar</button>
+                        </span>
+                      </div>
+                  </div>
+                  <!-- /.card-footer-->
+                </div>
+              {% endif %}
+              <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </section>
+    
+    <!-- /.content -->
+  </div>
+
+{% if conversa != 0 %}
+<script type="text/javascript">
+
+  var url_chat = window.location.href.split('/contatos')[0] + '/contatos_request/';
+  var last_id = 0;
+
+  data = { csrfmiddlewaretoken: "{{csrf_token}}", user: "{{conversa}}" }
+  $.post( url_chat + "?old_m=1", data, function(result) {
+      for(var i=0; i<result.mensagens.length; i++)
+      {
+        last_id = parseInt(result.mensagens[i].id);
+        updateMessage(result.mensagens[i].id, result.mensagens[i].de_usuario__nome, result.mensagens[i].de_usuario__foto, result.mensagens[i].data_str, result.mensagens[i].mensagem);
+      }
+      $('#message_container').scrollTop($('#message_container').get(0).scrollHeight);
+  }, "json");
+
+
+
+
+  $('input[name="message"]').keyup(function(){
+    if( $('input[name="message"]').val() != '' ){
+      $('#send_message').prop("disabled", false);
+    } else {
+      $('#send_message').prop("disabled", true);
+    }
+  });
+
+
+
+
+  $(document).on('keypress',function(e) { if(e.which == 13) { sendMessage(); } });
+  $('#send_message').click(function(){ sendMessage(); });
+
+
+
+
+  function sendMessage(){
+    data = { csrfmiddlewaretoken: "{{csrf_token}}", user: "{{conversa}}",  message: $('input[name="message"]').val() }
+    $.post( url_chat, data, function(result) {
+      $('#send_message').prop("disabled", true);
+      $('input[name="message"]').val('');
+    }, "json");
+    loadMessages();
+  }
+
+
+
+
+  const timer = setInterval(function(){
+    loadMessages();
+    if('{{conversa}}' == '0'){
+      clearInterval(timer);
+    }
+  }, 1500);
+
+
+
+
+
+  function loadMessages(){
+    data = { csrfmiddlewaretoken: "{{csrf_token}}", user: "{{conversa}}", m_id: last_id }
+    $.post( url_chat + "?r=1", data, function(result) {
+      if(result.mensagens.length > 0){
+        if(last_id < parseInt(result.mensagens[0].id)){
+          for(var i=0; i<result.mensagens.length; i++)
+          {
+            last_id = result.mensagens[i].id;
+            updateMessage(result.mensagens[i].id, result.mensagens[i].de_usuario__nome, result.mensagens[i].de_usuario__foto, result.mensagens[i].data_str, result.mensagens[i].mensagem);
+          }
+          $('#message_container').animate({
+            scrollTop: $('#message_container').get(0).scrollHeight
+          }, 350);
+        }
+    }
+    }, "json");
+  }
+
+
+
+  function updateMessage(id_chat, nome, foto, data_str, mensagem){
+    $('#message_container').append(returnMessageLayout(nome, foto, data_str, mensagem));
+    data = { csrfmiddlewaretoken: "{{csrf_token}}", user: "{{conversa}}", up: '1' }
+    $.post( url_chat, data, 'json' );
+  }
+
+
+
+  function returnMessageLayout(nome, foto, data_str, mensagem){
+
+    var message = '<div class="direct-chat-msg">';
+
+    var align = ['<span class="direct-chat-name float-left">' + nome + '</span>',
+                 '<span class="direct-chat-timestamp float-right">' + data_str + '</span></div>'];
+
+    if('{% usuarioNome %}' == nome)
+    {
+      message = '<div class="direct-chat-msg right">';
+      foto = '{% usuarioFoto %}';
+      align[0] = '<span class="direct-chat-name float-right">' + nome + '</span>';
+      align[1] = '<span class="direct-chat-timestamp float-left">' + data_str + '</span></div>';
+    }
+
+    message +=  '<div class="direct-chat-infos clearfix">' +
+                align[0] +
+                align[1] +
+                '<img class="direct-chat-img" src="' + foto + '" alt="Message User Image">' +
+                '<div class="direct-chat-text">' + mensagem + '</div></div>';
+
+    return message;
+  }
+
+</script>
+{% endif %}
+{% endblock %}

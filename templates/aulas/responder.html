@@ -1,0 +1,134 @@
+{% extends '../base.html' %}
+{% load custom_tags %}
+{% block content %}
+{% usuarioNivel as nivel %}
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+  
+      <!-- Main content -->
+      <section class="content" style="padding-top: 10px;">
+        <div class="row">
+          <div class="col-md-3">
+            <a href="{% url 'novo_planejamento_view' %}" class="btn btn-primary btn-block mb-3">Novo envio</a>
+  
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Folders</h3>
+  
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+                  <li class="nav-item active">
+                    <a href="{% url 'planejamentos_view' %}" class="nav-link">
+                      <i class="fas fa-inbox"></i> Respondidos
+                      <span class="badge bg-primary float-right">{{respondidos}}</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'enviados_view' %}" class="nav-link">
+                      <i class="far fa-envelope"></i>
+                      {% if 'TutoriaisCadastroView' in nivel %}
+                      Recebidos
+                      <span class="badge bg-primary float-right">{{recebidos.count}}</span>
+                      {% else %}
+                      Enviados
+                      {% endif %}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        
+        
+          </div>
+          <!-- /.col -->
+          <div class="col-md-9">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title"><strong class="text-uppercase">{{planejamento.turma.escola.nome}}</strong>
+                <br>{{planejamento.turma.escola.unidade.cidade}}, {{planejamento.turma.escola.unidade.estado}}</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+                <div class="mailbox-read-info">
+                  <h5 class="text-uppercase">{{planejamento.usuario.nome}}</h5>
+                  <h6>{{planejamento.turma.nome}} - {{planejamento.turma.turno}}
+                    <span class="mailbox-read-time float-right">{{planejamento.data|formatarData:'full'}}</span></h6>
+                </div>
+                <!-- /.mailbox-controls -->
+                <div class="mailbox-read-message" style="text-align: justify">
+                    {{planejamento.mensagem|limitadorTexto:200}}
+                </div>
+                <!-- /.mailbox-read-message -->
+              </div>
+              <!-- /.card-body -->
+              <form method="post">
+                {% csrf_token %}
+                <input hidden name="planejamento" value="{{planejamento.id}}" />
+                <div class="card-footer bg-white">
+                  <div id="accordion" style="margin: 0px -10px">
+                    <div class="card card-primary">
+                      <div class="card-header">
+                        <h4 class="card-title w-100">
+                          <a class="d-block w-100" data-toggle="collapse" href="#collapseOne">
+                            Anexo
+                          </a>
+                        </h4>
+                      </div>
+                      <div id="collapseOne" class="collapse hide" data-parent="#accordion" style="margin: -20px; padding: 0px;">
+                        <div class="card-body">
+                          <iframe src="{{planejamento.anexo}}" width="100%" height="450" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" style="margin: 10px;">
+                  <textarea name="mensagem" class="form-control" style="height: 300px;" placeholder="Mensagem:"></textarea>
+                </div>
+                <div class="form-group" align="right">
+                  <button type="submit" style="margin-right: 10px;" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                </div>
+                {% if respostas.count > 0 %}
+                  <div class="card-footer card-comments">
+                    {% for resposta in respostas %}
+                      <div class="card-comment">
+                        <!-- User image -->
+                        <img class="img-circle img-sm" src="{{resposta.usuario.foto}}" alt="User Image">
+
+                        <div class="comment-text">
+                          <span class="username">
+                            {{resposta.usuario.nome}}
+                            <span class="text-muted float-right">{{resposta.data|formatarData:'full'}}</span>
+                          </span><!-- /.username -->
+                          {{resposta.mensagem}}
+                        </div>
+                        <!-- /.comment-text -->
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <!-- /.card-comment -->
+                {% endif %}
+                <!-- /.card-footer -->
+              </form>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </section>
+    
+    <!-- /.content -->
+  </div>
+
+  {% endblock %}
