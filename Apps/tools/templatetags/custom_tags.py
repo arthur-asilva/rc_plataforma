@@ -3,9 +3,9 @@ import datetime
 # import json
 
 from Apps.usuarios.models import Usuario
-from Apps.contatos.models import Chat
+# from Apps.contatos.models import Chat
 from Apps.usuarios.views import auth
-from Apps.aulas.models import Resposta
+from Apps.aulas.models import GradePlanComment
 from django.conf import settings
 from Apps.tools.views import encode, decode
 
@@ -102,7 +102,7 @@ def usuarioSegmento(value):
 @register.simple_tag(takes_context=True)
 def planejamentoRespondido(context):
     request = context['request']
-    respostas = Resposta.objects.filter(planejamento__usuario__id=auth(request).id, visto=False)
+    respostas = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False)
 
     return respostas.count()
 

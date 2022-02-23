@@ -4,8 +4,8 @@ from Apps.turmas.models import Turma
 from Apps.usuarios.models import Usuario
 from Apps.usuarios.views import auth
 from Apps.tools.views import decode
-from Apps.tools.data_choices import CLASS_SHIFTS, CLASS_SEGMENTS, CLASS_PLAIN_EMPHASIS, classesPerSegments
-from .models import Planejamento, Resposta
+from Apps.tools.data_choices import CLASS_SHIFTS, CLASS_SEGMENTS, GRADE_PLAN_EMPHASIS, classesPerSegments
+from .models import GradePlanComment, GradePlan
 import csv, datetime, base64
 from io import StringIO
 
@@ -83,8 +83,8 @@ def NovoPlanejamentoView(request):
         'turnos': CLASS_SHIFTS,
         'segmentos_aula': CLASS_SEGMENTS,
         'respondidos': respostas.count(),
-        'recebidos': Planejamento.objects.filter(visto=False),
-        'enfases': CLASS_PLAIN_EMPHASIS,
+        'recebidos': GradePlan.objects.filter(visto=False),
+        'enfases': GRADE_PLAN_EMPHASIS,
         'turmas': turmas,
         'dia_aula': dia_aula,
         'planilha_modelo': planilha_modelo

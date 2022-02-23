@@ -16,7 +16,7 @@ CLASS_SEGMENTS = (
     ('medio', 'Médio')
 )
 
-CLASS_PLAIN_EMPHASIS = (
+GRADE_PLAN_EMPHASIS = (
     ('T', 'Técnico'),
     ('P', 'Propedêutico'),
 )
