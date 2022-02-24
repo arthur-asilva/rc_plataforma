@@ -2,3 +2,4 @@ media/
 Apps/tools/privacy_data.py
 __pycache__/
 .DS_Store
+db.sqlite3

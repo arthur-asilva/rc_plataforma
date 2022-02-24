@@ -4,7 +4,7 @@ from Apps.turmas.models import Turma
 from Apps.usuarios.models import Usuario
 from Apps.usuarios.views import auth
 from Apps.tools.views import decode
-from Apps.tools.data_choices import CLASS_SHIFTS, CLASS_SEGMENTS, GRADE_PLAN_EMPHASIS, classesPerSegments
+from Apps.tools.data_choices import GRADE_PLAN_EMPHASIS, GRADE_SHIFTS, gradesPerSegments
 from .models import GradePlanComment, GradePlan
 import csv, datetime, base64
 from io import StringIO
@@ -16,7 +16,7 @@ def PlanejamentosView(request):
     data = {
         'planejamentos': respostas,
         'respondidos': respostas.count(),
-        'recebidos': Planejamento.objects.filter(visto=False),
+        'recebidos': GradePlan.objects.filter(visto=False),
         'turmas': Turma.objects.filter(professor__id=auth(request).id).count() == 0
     }
 
@@ -29,18 +29,18 @@ def PlanejamentoRespostaView(request):
     respostas = getRespostas(request, 0)
 
     if request.method == 'POST':
-        resposta = Resposta()
-        resposta.planejamento = Planejamento.objects.get(id=int(request.POST['planejamento']))
+        resposta = GradePlanComment()
+        resposta.planejamento = GradePlan.objects.get(id=int(request.POST['planejamento']))
         resposta.mensagem = request.POST['mensagem']
         resposta.usuario = Usuario.objects.get(id=auth(request).id)
         resposta.save()
         return redirect('../planejamentos/')
 
     data = {
-        'planejamento': Planejamento.objects.get(id=planejamento),
-        'respostas': Resposta.objects.filter(planejamento__id=planejamento).order_by('-data'),
+        'planejamento': GradePlan.objects.get(id=planejamento),
+        'respostas': GradePlanComment.objects.filter(planejamento__id=planejamento).order_by('-data'),
         'respondidos': respostas.count(),
-        'recebidos': Planejamento.objects.filter(visto=False)
+        'recebidos': GradePlan.objects.filter(visto=False)
     }
     return render(request, 'aulas/responder.html', data)
 
@@ -56,7 +56,7 @@ def NovoPlanejamentoView(request):
         filtro = {
             'escola__id': request.POST['escola'],
             'turno': request.POST['turno'],
-            'nome__in': classesPerSegments(request.POST['segmento']),
+            'nome__in': gradesPerSegments(request.POST['segmento']),
             'professor__id': professor.id
         }
         turmas = Turma.objects.filter(**filtro)
@@ -80,8 +80,8 @@ def NovoPlanejamentoView(request):
 
     data = {
         'escolas': Turma.objects.values('escola__nome', 'escola__id').filter( professor__id=auth(request).id ),
-        'turnos': CLASS_SHIFTS,
-        'segmentos_aula': CLASS_SEGMENTS,
+        'turnos': GRADE_SHIFTS,
+        'segmentos_aula': GRADE_SHIFTS,
         'respondidos': respostas.count(),
         'recebidos': GradePlan.objects.filter(visto=False),
         'enfases': GRADE_PLAN_EMPHASIS,
@@ -90,27 +90,27 @@ def NovoPlanejamentoView(request):
         'planilha_modelo': planilha_modelo
     }
 
-    return render(request, 'aulas/novo_planejamento.html', data)
+    return render(request, 'aulas/novo_GradePlan.html', data)
 
 
 
 def VisualizarView(request):
     planejamento = int(decode(request.GET['p']))
 
-    Resposta.objects.filter(planejamento__id=planejamento, visto=False).update(visto=True)
+    GradePlanComment.objects.filter(planejamento__id=planejamento, visto=False).update(visto=True)
 
     if auth(request).grupo.nome == 'administrador':
-        respostas = Resposta.objects.filter(visto=False).order_by('-planejamento__data_envio')
-        Planejamento.objects.filter(id=planejamento, visto=False).update(visto=True)
+        respostas = GradePlanComment.objects.filter(visto=False).order_by('-planejamento__data_envio')
+        GradePlan.objects.filter(id=planejamento, visto=False).update(visto=True)
     else:
-        respostas = Resposta.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
+        respostas = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
             '-planejamento__data_envio')
 
     data = {
-        'planejamento': Planejamento.objects.get(id=planejamento),
-        'respostas': Resposta.objects.filter(planejamento__id=planejamento).order_by('-data'),
+        'planejamento': GradePlan.objects.get(id=planejamento),
+        'respostas': GradePlanComment.objects.filter(planejamento__id=planejamento).order_by('-data'),
         'respondidos': respostas.count(),
-        'recebidos': Planejamento.objects.filter(visto=False)
+        'recebidos': GradePlan.objects.filter(visto=False)
     }
     return render(request, 'aulas/visualizar.html', data)
 
@@ -122,7 +122,7 @@ def EnviadosView(request):
     data = {
         'planejamentos': planejamentos,
         'respondidos': respostas.count(),
-        'recebidos': Planejamento.objects.filter(visto=False)
+        'recebidos': GradePlan.objects.filter(visto=False)
     }
 
     return render(request, 'aulas/enviados.html', data)
@@ -131,10 +131,10 @@ def EnviadosView(request):
 def getRespostas(request, indice):
     result = {}
     if auth(request).grupo.nome == 'administrador':
-        result[0] = Resposta.objects.filter(visto=False).order_by('-planejamento__data_envio')
-        result[1] = Planejamento.objects.all().order_by('-data_envio')
+        result[0] = GradePlanComment.objects.filter(visto=False).order_by('-planejamento__data_envio')
+        result[1] = GradePlan.objects.all().order_by('-data_envio')
     else:
-        result[0] = Resposta.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
+        result[0] = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
             '-planejamento__data_envio')
-        result[1] = Planejamento.objects.filter(usuario__id=auth(request).id).order_by('-data_envio')
+        result[1] = GradePlan.objects.filter(usuario__id=auth(request).id).order_by('-data_envio')
     return result[indice]

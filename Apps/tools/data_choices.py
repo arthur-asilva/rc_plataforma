@@ -1,6 +1,6 @@
 from Apps.tools.privacy_data import SEGMENTOS
 
-CLASS_SHIFTS = (
+GRADE_SHIFTS = (
     ('M', 'Manhã'),
     ('CM', 'Contraturno manhã'),
     ('T', 'Tarde'),
@@ -9,7 +9,7 @@ CLASS_SHIFTS = (
     ('CN', 'Contraturno noite')
 )
 
-CLASS_SEGMENTS = (
+GRADE_SEGMENTS = (
     ('infantil', 'Infantil'),
     ('anos_iniciais', 'Anos iniciais'),
     ('anos_finais', 'Anos finais'),
@@ -21,5 +21,5 @@ GRADE_PLAN_EMPHASIS = (
     ('P', 'Propedêutico'),
 )
 
-def classesPerSegments(segment):
+def gradesPerSegments(segment):
     return SEGMENTOS[segment]
