@@ -10,7 +10,7 @@
       <section class="content" style="padding-top: 10px;">
         <div class="row">
           <div class="col-md-3">
-            <a href="{% url 'novo_planejamento_view' %}" class="btn btn-primary btn-block mb-3">Novo envio</a>
+            <a href="{% url 'novo_planejamento_view' %}" class="btn btn-primary btn-block mb-3 {% if turmas %}disabled{% endif %}">Novo envio</a>
   
             <div class="card">
               <div class="card-header">
@@ -24,21 +24,24 @@
               </div>
               <div class="card-body p-0">
                 <ul class="nav nav-pills flex-column">
-                  <li class="nav-item active">
-                    <a href="{% url 'planejamentos_view' %}" class="nav-link">
-                      <i class="fas fa-inbox"></i> Respondidos
-                      <span class="badge bg-primary float-right">{{respondidos}}</span>
+                  <li class="nav-item">
+                    <a href="{% url 'viewed_plans_view' %}" class="nav-link">
+                      <i class="far fa-envelope-open"></i>
+                      Vistos
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="{% url 'enviados_view' %}" class="nav-link">
+                    <a href="{% url 'unviewed_plans_view' %}" class="nav-link">
                       <i class="far fa-envelope"></i>
-                      {% if 'TutoriaisCadastroView' in nivel %}
-                      Recebidos
-                      <span class="badge bg-primary float-right">{{recebidos.count}}</span>
-                      {% else %}
-                      Enviados
-                      {% endif %}
+                      Não vistos
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_plans.count}}</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'commented_plans_view' %}" class="nav-link">
+                      <i class="far fa-comment-dots"></i>
+                      Comentados
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_comments.count}}</span>
                     </a>
                   </li>
                 </ul>
@@ -53,7 +56,7 @@
           <div class="col-md-9">
             <div class="card card-primary card-outline">
               <div class="card-header">
-                <h3 class="card-title">Recebidos</h3>
+                <h3 class="card-title">Enviados</h3>
   
                 <div class="card-tools">
                   <div class="input-group input-group-sm">
@@ -89,7 +92,7 @@
                     <i class="fas fa-sync-alt"></i>
                   </button>
                   <div class="float-right">
-                    1-{{planejamentos.count}}/{{planejamentos.count}}
+                    1-{{grade_plans.count}}/{{grade_plans.count}}
                     <div class="btn-group">
                       <button type="button" class="btn btn-default btn-sm">
                         <i class="fas fa-chevron-left"></i>
@@ -102,11 +105,12 @@
                   </div>
                   <!-- /.float-right -->
                 </div>
+                {% if grade_plans.count > 0 %}
                 <div class="table-responsive mailbox-messages">
                   <table class="table table-hover table-striped">
                     <tbody>
                     
-                      {% for planejamento in planejamentos %}
+                      {% for grade_plan in grade_plans %}
                         <tr>
 <!--                          <td>-->
 <!--                            <div class="icheck-primary">-->
@@ -114,18 +118,17 @@
 <!--                              <label for="check1"></label>-->
 <!--                            </div>-->
 <!--                          </td>-->
-                          <td class="mailbox-star"></td>
-                          <td class="mailbox-name"><a href="{% url 'visualizar_view' %}?p={{planejamento.id|encodeDecode:'encode'}}">{{planejamento.usuario.nome}}</a></td>
-                          <td class="mailbox-subject"><b>{{planejamento.turma.nome}}, {{planejamento.turma.turno}} - {{planejamento.data}}</b> - {{planejamento.mensagem|limitadorTexto:90}}</td>
-                          <td class="mailbox-attachment"></td>
-                          <td class="mailbox-date">{{planejamento.data_envio|formatarData:'full'}}</td>
+                          <td><a href="{% url 'visualizar_view' %}?p={{grade_plan.id|encodeDecode:'encode'}}">{{grade_plan.posted_by.nome}}</a></td>
+                          <td>{{grade_plan.school.nome}}</td>
+                          <td>{{grade_plan.lesson_month|dateFormat:'%m/%Y'}}</td>
+                          <td class="text-right">{{grade_plan.creation_date|dateFormat:'%d/%m/%Y'}}</td>
                         </tr>
-                      {% endfor %}
       
                     </tbody>
                   </table>
                   <!-- /.table -->
                 </div>
+                {% endfor %}
                 <!-- /.mail-box-messages -->
               </div>
               <!-- /.card-body -->
@@ -135,6 +138,7 @@
           </div>
           <!-- /.col -->
         </div>
+        {% endif %}
         <!-- /.row -->
       </section>
     

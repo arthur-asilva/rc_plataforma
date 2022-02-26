@@ -47,6 +47,17 @@ def usuarioNivel(context):
     return usuario.grupo.acessos.split(';')
 
 
+
+
+@register.simple_tag(takes_context=True)
+def isAdministrator(context):
+    request = context['request']
+    usuario = Usuario.objects.get(id=auth(request).id)
+    return usuario.grupo.nome == 'administrador'
+
+
+
+
 @register.simple_tag(takes_context=True)
 def usuarioFoto(context):
     request = context['request']
@@ -102,19 +113,14 @@ def usuarioSegmento(value):
 @register.simple_tag(takes_context=True)
 def planejamentoRespondido(context):
     request = context['request']
-    respostas = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False)
+    respostas = GradePlanComment.objects.filter(class_plan__posted_by__id=auth(request).id)
 
     return respostas.count()
 
 
-@register.filter(name='formatarData')
-def formatarData(value, arg):
-    data = None
-    if arg == 'full':
-        data = value.strftime('%d/%m/%Y %H:%M:%S')
-    if arg == 'lapsed':
-        data = datetime.datetime.strptime(value, '%d/%m/%y %H:%M:%S') - datetime.datetime.now()
-    return data
+@register.filter(name='dateFormat')
+def dateFormat(value, arg):
+    return value.strftime(arg)
 
 
 @register.filter(name='indexTurma')

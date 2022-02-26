@@ -1,140 +1,142 @@
-from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
 from django.shortcuts import render, redirect
-from Apps.turmas.models import Turma
+from Apps.turmas.models import Escola, Turma
 from Apps.usuarios.models import Usuario
 from Apps.usuarios.views import auth
-from Apps.tools.views import decode
-from Apps.tools.data_choices import GRADE_PLAN_EMPHASIS, GRADE_SHIFTS, gradesPerSegments
+from Apps.tools.views import decode, gradePlanUpload
+from Apps.tools.data_choices import MONTHS
 from .models import GradePlanComment, GradePlan
-import csv, datetime, base64
-from io import StringIO
+from django.db.models import Q, Count
 
-def PlanejamentosView(request):
 
-    respostas = getRespostas(request, 0)
+
+def GradePlansView(request):
+
+    mode = request.GET.get('mode', None)
+    user = auth(request)
+    card_titles = {'viewed': 'Vistos', 'unviewed': 'Não vistos', 'comment': 'Comentados'}
+    group_filter = {'viewed': False}
+
+    if user.grupo.nome != 'administrador':
+        group_filter['posted_by'] = user
+
+    if user.grupo.nome != 'administrador' and mode == 'comment':
+        group_filter['class_plan__posted_by'] = group_filter.pop('posted_by')
+
+
+    # if user.grupo.nome != 'administrador':
+    #     group_filter = { 'posted_by': user, 'viewed': False }
+    # else:
+    #     group_filter = { 'viewed': False }
+
+
 
     data = {
-        'planejamentos': respostas,
-        'respondidos': respostas.count(),
-        'recebidos': GradePlan.objects.filter(visto=False),
-        'turmas': Turma.objects.filter(professor__id=auth(request).id).count() == 0
+        'turmas': Turma.objects.filter(professor__id=auth(request).id).count() == 0 and auth(request) == 'professor',
+        'mode': mode,
+        'card_title': card_titles[mode]
     }
+
+
+    if mode == 'viewed':
+        group_filter['viewed'] = True
+        data['data'] = GradePlan.objects.filter(**group_filter).order_by('-id')
+    if mode == 'unviewed':
+        data['data'] = GradePlan.objects.filter(**group_filter).order_by('-id')
+    if mode == 'comment':
+        data['data'] = GradePlanComment.objects.values('class_plan__id', 'class_plan__posted_by__nome', 'class_plan__lesson_month', 'class_plan__school__nome').filter(**group_filter).annotate(Count('class_plan__id'))
+
+    data = {**data, **getClassPlans(user)}
+
 
     return render(request, 'aulas/planejamentos.html', data)
 
 
-def PlanejamentoRespostaView(request):
 
+
+def PlanejamentoRespostaView(request):
     planejamento = int(decode(request.GET['p']))
-    respostas = getRespostas(request, 0)
+    posted_by = auth(request)
 
     if request.method == 'POST':
         resposta = GradePlanComment()
-        resposta.planejamento = GradePlan.objects.get(id=int(request.POST['planejamento']))
-        resposta.mensagem = request.POST['mensagem']
-        resposta.usuario = Usuario.objects.get(id=auth(request).id)
+        resposta.class_plan = GradePlan.objects.get(id=planejamento)
+        resposta.message = request.POST['mensagem']
+        resposta.posted_by = Usuario.objects.get(id=posted_by.id)
         resposta.save()
-        return redirect('../planejamentos/')
+        return redirect('../gradeplans/?mode=viewed')
 
     data = {
-        'planejamento': GradePlan.objects.get(id=planejamento),
-        'respostas': GradePlanComment.objects.filter(planejamento__id=planejamento).order_by('-data'),
-        'respondidos': respostas.count(),
-        'recebidos': GradePlan.objects.filter(visto=False)
+        'grade_plan': GradePlan.objects.get(id=planejamento),
+        'grade_plan_comments': GradePlanComment.objects.filter(class_plan__id=planejamento).order_by('-creation_date'),
     }
+
+    data = {**data, **getClassPlans(posted_by)}
+
     return render(request, 'aulas/responder.html', data)
 
 
 def NovoPlanejamentoView(request):
-    professor = Usuario.objects.get(id=auth(request).id)
-    respostas = getRespostas(request, 0)
-    turmas = None
-    planilha_modelo = None
-    dia_aula = None
+    posted_by = auth(request)
+    document = request.FILES.get('document', None)
 
     if request.method == 'POST':
-        filtro = {
-            'escola__id': request.POST['escola'],
-            'turno': request.POST['turno'],
-            'nome__in': gradesPerSegments(request.POST['segmento']),
-            'professor__id': professor.id
-        }
-        turmas = Turma.objects.filter(**filtro)
-        dia_aula = datetime.datetime.fromisoformat(request.POST['data'])
-
-        data = [['id', 'turma', 'enfase(T/F)', 'tema', 'objetivo', 'data']]
-
-        for turma in turmas:
-            for i in range(4):
-                date = dia_aula + datetime.timedelta(days=(i * 7) )
-                data.append([turma.id, turma.nome, '', '', '', date.strftime('%Y-%m-%d')])
-            
-        with open(f'{request.session["auth_session"]}.csv', 'w', encoding='UTF8') as f:
-            writer = csv.writer(f, delimiter=';')
-            writer.writerows(data)
-
-        file = open(f'{request.session["auth_session"]}.csv', 'r')
-        planilha_modelo = base64.b64encode(file.read().encode('utf-8')).decode("utf-8")
-
-        # return redirect('../planejamentos/')
+        grade_plan = GradePlan()
+        grade_plan.posted_by = posted_by
+        grade_plan.school = Escola.objects.get(id=request.POST['school'])
+        grade_plan.lesson_month = f"{timezone.now().year}-{request.POST['month']}-01"
+        grade_plan.description = request.POST['description']
+        if document != None:
+            url = f"ClassPlan/{grade_plan.lesson_month}/{grade_plan.school.id}_{grade_plan.school.nome}/"
+            grade_plan.document = gradePlanUpload(document, url + f"/{posted_by.id}_{grade_plan.school.nome}_{request.POST['month']}")
+        grade_plan.save()
+        return redirect('../gradeplans/?mode=viewed')
 
     data = {
-        'escolas': Turma.objects.values('escola__nome', 'escola__id').filter( professor__id=auth(request).id ),
-        'turnos': GRADE_SHIFTS,
-        'segmentos_aula': GRADE_SHIFTS,
-        'respondidos': respostas.count(),
-        'recebidos': GradePlan.objects.filter(visto=False),
-        'enfases': GRADE_PLAN_EMPHASIS,
-        'turmas': turmas,
-        'dia_aula': dia_aula,
-        'planilha_modelo': planilha_modelo
+        'escolas': Turma.objects.values('escola__nome', 'escola__id').filter(professor__id=auth(request).id).distinct(),
+        'months': MONTHS
     }
 
-    return render(request, 'aulas/novo_GradePlan.html', data)
+    data = {**data, **getClassPlans(posted_by)}
+
+    return render(request, 'aulas/newplan.html', data)
+
 
 
 
 def VisualizarView(request):
-    planejamento = int(decode(request.GET['p']))
-
-    GradePlanComment.objects.filter(planejamento__id=planejamento, visto=False).update(visto=True)
-
-    if auth(request).grupo.nome == 'administrador':
-        respostas = GradePlanComment.objects.filter(visto=False).order_by('-planejamento__data_envio')
-        GradePlan.objects.filter(id=planejamento, visto=False).update(visto=True)
-    else:
-        respostas = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
-            '-planejamento__data_envio')
-
+    plan_id = int(decode(request.GET['p']))
+    user = auth(request)
     data = {
-        'planejamento': GradePlan.objects.get(id=planejamento),
-        'respostas': GradePlanComment.objects.filter(planejamento__id=planejamento).order_by('-data'),
-        'respondidos': respostas.count(),
-        'recebidos': GradePlan.objects.filter(visto=False)
+        'grade_plan': GradePlan.objects.get(id=plan_id),
+        'plan_comments': GradePlanComment.objects.filter(class_plan__id=plan_id).order_by('-id')
     }
+    data = {**data, **getClassPlans(user)}
     return render(request, 'aulas/visualizar.html', data)
 
 
-def EnviadosView(request):
-    respostas = getRespostas(request, 0)
-    planejamentos = getRespostas(request, 1)
 
+
+def EnviadosView(request):
+    user = auth(request)
     data = {
-        'planejamentos': planejamentos,
-        'respondidos': respostas.count(),
-        'recebidos': GradePlan.objects.filter(visto=False)
+        'turmas': Turma.objects.filter(professor__id=user.id).count() == 0 and user.grupo.nome == 'professor'
     }
+    data = {**data, **getClassPlans(user)}
 
     return render(request, 'aulas/enviados.html', data)
 
 
-def getRespostas(request, indice):
-    result = {}
-    if auth(request).grupo.nome == 'administrador':
-        result[0] = GradePlanComment.objects.filter(visto=False).order_by('-planejamento__data_envio')
-        result[1] = GradePlan.objects.all().order_by('-data_envio')
+
+
+def getClassPlans(user):
+    data = {}
+    if user.grupo.nome == 'administrador':
+        data['grade_plans'] = GradePlan.objects.filter(viewed=True).order_by('-id')
+        data['unviewed_comments'] = GradePlanComment.objects.filter(viewed=False).order_by('-id')
+        data['unviewed_plans'] = GradePlan.objects.filter(viewed=False)
     else:
-        result[0] = GradePlanComment.objects.filter(planejamento__usuario__id=auth(request).id, visto=False).order_by(
-            '-planejamento__data_envio')
-        result[1] = GradePlan.objects.filter(usuario__id=auth(request).id).order_by('-data_envio')
-    return result[indice]
+        data['grade_plans'] = GradePlan.objects.filter(posted_by__id=user.id).order_by('-id')
+        data['unviewed_comments'] = GradePlanComment.objects.filter(class_plan__posted_by__id=user.id, viewed=False).order_by('-id')
+
+    return data

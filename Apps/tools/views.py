@@ -34,11 +34,19 @@ def uploadArquivo(arquivo, url):
         os.remove(arquivo)
 
     url = url + '.' + upload.name.split('.')[-1]
-
     file = fss.save(url, upload)
     anexo = fss.url(file)
 
     return anexo
+
+
+def gradePlanUpload(document, url):
+    upload = document
+    fss = FileSystemStorage()
+    url = url + '.' + upload.name.split('.')[-1]
+    file = fss.save(url, upload)
+    file_path = fss.url(file)
+    return file_path
 
 
 def AuthValidation(func):

@@ -7,7 +7,7 @@ class Unidade(models.Model):
     estado = models.CharField(max_length=150)
 
     def __str__(self):
-        return f"{self.unidade.cidade}/{self.unidade.estado}"
+        return f"{self.cidade}/{self.estado}"
 
 
 
@@ -20,7 +20,7 @@ class Escola(models.Model):
     observacao = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nome}, {self.unidade.cidade}/{self.unidade.estado}"
+        return f"{self.nome}, {self.unidade}"
 
 
 

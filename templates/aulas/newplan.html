@@ -1,5 +1,4 @@
 {% extends '../base.html' %}
-{% load static %}
 {% load custom_tags %}
 {% block content %}
 {% usuarioNivel as nivel %}
@@ -11,7 +10,6 @@
       <section class="content" style="padding-top: 10px;">
         <div class="row">
           <div class="col-md-3">
-            <a href="{% url 'new_plan_view' %}" class="btn btn-primary btn-block mb-3">Nova mensagem</a>
   
             <div class="card">
               <div class="card-header">
@@ -49,55 +47,62 @@
               </div>
               <!-- /.card-body -->
             </div>
-            <!-- /.card -->
-        
         
           </div>
           <!-- /.col -->
           <div class="col-md-9">
             <div class="card card-primary card-outline">
               <div class="card-header">
-                <h3 class="card-title"><strong class="text-uppercase">{{grade_plan.school.nome}}</strong>
-                <br>{{grade_plan.school.unidade.cidade}}, {{grade_plan.school.unidade.estado}}</h3>
-                <a href="{% url 'responder_planejamento_view' %}?p={{grade_plan.id|encodeDecode:'encode'}}" class="btn btn-default float-right"><i class="fas fa-reply"></i> Responder</a>
+                <h3 class="card-title">Novo envio</h3>
               </div>
               <!-- /.card-header -->
-              <div class="card-body p-0 pb-4">
-                <!-- /.mailbox-controls -->
-                <div class="mailbox-read-message" style="text-align: justify">
-                  <h5 class="text-uppercase">{{grade_plan.posted_by.nome}}</h5>
-                  <span class="mailbox-read-time">Planejamento referente a {{grade_plan.lesson_month|dateFormat:'%m/%Y'}}</span>
-
-                    <a href="{{grade_plan.document}}" class="d-block p-4 text-center" download>
-                      <h1>
-                      <i class="fas fa-inbox d-block"></i>
-                      </h1>Baixar arquivo
-                    </a>
-                    {{grade_plan.description}}
-                  <span class="mailbox-read-time float-right">{{grade_plan.lesson_month}}</span>
-                </div>
-                <!-- /.mailbox-read-message -->
-              </div>
-              {% if plan_comments.count > 0 %}
-                <div class="card-footer card-comments">
-                  {% for plan_comment in plan_comments %}
-                    <div class="card-comment">
-                      <!-- User image -->
-                      <img class="img-circle img-sm" src="{{plan_comment.posted_by.foto}}" alt="User post image">
-
-                      <div class="comment-text">
-                        <span class="username">
-                          {{plan_comment.posted_by.nome}}
-                          <span class="text-muted float-right">{{plan_comment.creation_date}}</span>
-                        </span><!-- /.username -->
-                        {{plan_comment.message}}
+              <form method="post" class="{% if turmas is not None %}d-none{% endif %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                  
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Escola</label>
+                        <select name="school" class="form-control select2" style="width: 100%;">
+                          {% for escola in escolas %}
+                            <option value="{{escola.escola__id}}">{{escola.escola__nome}}</option>
+                          {% endfor %}
+                        </select>
                       </div>
-                      <!-- /.comment-text -->
                     </div>
-                  {% endfor %}
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Mês</label>
+                        <select name="month" class="form-control select2" style="width: 100%;">
+                          {% for month in months %}
+                            <option value="{{month.0}}">{{month.1}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Mensagem</label>
+                    <textarea name="description" class="form-control" maxlength="254" style="height: 100px;"></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                          <div class="btn btn-default btn-file">
+                          <i class="fas fa-paperclip"></i> Anexo
+                          <input type="file" name="document" required>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+                <div class="card-footer">
+                  <div class="float-right">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Enviar</button>
+                  </div>
                 </div>
-                <!-- /.card-comment -->
-              {% endif %}
+              </form>
             </div>
             <!-- /.card -->
           </div>
