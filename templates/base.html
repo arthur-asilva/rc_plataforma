@@ -63,7 +63,7 @@
         <a href="{% url 'dash_view' %}" class="nav-link">Início</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="{% url 'contatos_view' %}" class="nav-link">Contato</a>
+        <a href="#" class="nav-link">Contato</a>
       </li>
     </ul>
 
@@ -77,9 +77,9 @@
           <i class="far fa-comments"></i>
           <span id="chat_notificacoes" class="badge badge-danger navbar-badge"></span>
         </a>
-        <div id="conversasRecentes" class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        {% comment %} <div id="conversasRecentes" class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           
-        </div>
+        </div> {% endcomment %}
       </li>
       <!-- Notifications Dropdown Menu -->
       <li class="nav-item dropdown">
@@ -90,7 +90,7 @@
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <span class="dropdown-item dropdown-header">{% planejamentoRespondido %} Notificações</span>
           <div class="dropdown-divider"></div>
-          <a href="{% url 'planejamentos_view' %}" class="dropdown-item">
+          <a href="{% url 'grade_plans_view' %}" class="dropdown-item">
             <i class="fas fa-file mr-2"></i> {% planejamentoRespondido %} Retorno(s)
 <!--            <span class="float-right text-muted text-sm">2 days</span>-->
           </a>
@@ -308,7 +308,7 @@
             <ul class="nav nav-treeview">
 
               <li class="nav-item">
-                <a href="{% url 'planejamentos_view' %}" class="nav-link">
+                <a href="{% url 'grade_plans_view' %}?mode=viewed" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Planejamentos</p>
                 </a>
@@ -402,7 +402,7 @@
 <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
 
 
-<script type="text/javascript">
+{% comment %} <script type="text/javascript">
   
   data = { csrfmiddlewaretoken: "{{csrf_token}}" }
 
@@ -427,7 +427,7 @@
     return layout;
   }
 
-</script>
+</script> {% endcomment %}
 
 
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Planejamento, Resposta
+from .models import GradePlan, GradePlanComment
 
-admin.site.register(Planejamento)
-admin.site.register(Resposta)
+admin.site.register(GradePlan)
+admin.site.register(GradePlanComment)

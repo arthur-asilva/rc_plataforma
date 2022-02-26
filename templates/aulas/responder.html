@@ -10,7 +10,7 @@
       <section class="content" style="padding-top: 10px;">
         <div class="row">
           <div class="col-md-3">
-            <a href="{% url 'novo_planejamento_view' %}" class="btn btn-primary btn-block mb-3">Novo envio</a>
+            <a href="{% url 'new_plan_view' %}" class="btn btn-primary btn-block mb-3">Novo envio</a>
   
             <div class="card">
               <div class="card-header">
@@ -24,21 +24,24 @@
               </div>
               <div class="card-body p-0">
                 <ul class="nav nav-pills flex-column">
-                  <li class="nav-item active">
-                    <a href="{% url 'planejamentos_view' %}" class="nav-link">
-                      <i class="fas fa-inbox"></i> Respondidos
-                      <span class="badge bg-primary float-right">{{respondidos}}</span>
+                  <li class="nav-item">
+                    <a href="{% url 'grade_plans_view' %}?mode=viewed" class="nav-link">
+                      <i class="far fa-envelope-open"></i>
+                      Vistos
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="{% url 'enviados_view' %}" class="nav-link">
+                    <a href="{% url 'grade_plans_view' %}?mode=unviewed" class="nav-link">
                       <i class="far fa-envelope"></i>
-                      {% if 'TutoriaisCadastroView' in nivel %}
-                      Recebidos
-                      <span class="badge bg-primary float-right">{{recebidos.count}}</span>
-                      {% else %}
-                      Enviados
-                      {% endif %}
+                      Não vistos
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_plans.count}}</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'grade_plans_view' %}?mode=comment" class="nav-link">
+                      <i class="far fa-comment-dots"></i>
+                      Comentados
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_comments.count}}</span>
                     </a>
                   </li>
                 </ul>
@@ -53,63 +56,47 @@
           <div class="col-md-9">
             <div class="card card-primary card-outline">
               <div class="card-header">
-                <h3 class="card-title"><strong class="text-uppercase">{{planejamento.turma.escola.nome}}</strong>
-                <br>{{planejamento.turma.escola.unidade.cidade}}, {{planejamento.turma.escola.unidade.estado}}</h3>
+                <h3 class="card-title"><strong class="text-uppercase">{{grade_plan.school.nome}}</strong>
+                <br>{{grade_plan.school.unidade.cidade}}, {{grade_plan.school.unidade.estado}}</h3>
+                <a href="{% url 'responder_planejamento_view' %}?p={{grade_plan.id|encodeDecode:'encode'}}" class="btn btn-default float-right"><i class="fas fa-reply"></i> Responder</a>
               </div>
               <!-- /.card-header -->
-              <div class="card-body p-0">
-                <div class="mailbox-read-info">
-                  <h5 class="text-uppercase">{{planejamento.usuario.nome}}</h5>
-                  <h6>{{planejamento.turma.nome}} - {{planejamento.turma.turno}}
-                    <span class="mailbox-read-time float-right">{{planejamento.data|formatarData:'full'}}</span></h6>
-                </div>
+              <div class="card-body p-0 pb-4">
                 <!-- /.mailbox-controls -->
                 <div class="mailbox-read-message" style="text-align: justify">
-                    {{planejamento.mensagem|limitadorTexto:200}}
+                  <h5 class="text-uppercase">{{grade_plan.posted_by.nome}}</h5>
+                  <span class="mailbox-read-time">Planejamento referente a {{grade_plan.lesson_month|dateFormat:'%m/%Y'}}</span>
+
+                    <a href="{{grade_plan.document}}" class="d-block p-4 text-center" download>
+                      <h1>
+                      <i class="fas fa-inbox d-block"></i>
+                      </h1>Baixar arquivo
+                    </a>
+
+                  <span class="mailbox-read-time float-right">{{grade_plan.creation_date}}</span>
                 </div>
-                <!-- /.mailbox-read-message -->
-              </div>
               <!-- /.card-body -->
               <form method="post">
                 {% csrf_token %}
-                <input hidden name="planejamento" value="{{planejamento.id}}" />
-                <div class="card-footer bg-white">
-                  <div id="accordion" style="margin: 0px -10px">
-                    <div class="card card-primary">
-                      <div class="card-header">
-                        <h4 class="card-title w-100">
-                          <a class="d-block w-100" data-toggle="collapse" href="#collapseOne">
-                            Anexo
-                          </a>
-                        </h4>
-                      </div>
-                      <div id="collapseOne" class="collapse hide" data-parent="#accordion" style="margin: -20px; padding: 0px;">
-                        <div class="card-body">
-                          <iframe src="{{planejamento.anexo}}" width="100%" height="450" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <div class="form-group" style="margin: 10px;">
-                  <textarea name="mensagem" class="form-control" style="height: 300px;" placeholder="Mensagem:"></textarea>
+                  <textarea name="mensagem" class="form-control" maxlength="254" style="height: 100px;" placeholder="Mensagem:"></textarea>
                 </div>
                 <div class="form-group" align="right">
                   <button type="submit" style="margin-right: 10px;" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
                 </div>
-                {% if respostas.count > 0 %}
+                {% if grade_plan_comments.count > 0 %}
                   <div class="card-footer card-comments">
-                    {% for resposta in respostas %}
+                    {% for comment in grade_plan_comments %}
                       <div class="card-comment">
                         <!-- User image -->
-                        <img class="img-circle img-sm" src="{{resposta.usuario.foto}}" alt="User Image">
+                        <img class="img-circle img-sm" src="{{comment.posted_by.foto}}" alt="User Image">
 
                         <div class="comment-text">
                           <span class="username">
-                            {{resposta.usuario.nome}}
-                            <span class="text-muted float-right">{{resposta.data|formatarData:'full'}}</span>
+                            {{comment.posted_by.nome}}
+                            <span class="text-muted float-right">{{comment.creation_date|dateFormat:'%d/%m/%Y'}}</span>
                           </span><!-- /.username -->
-                          {{resposta.mensagem}}
+                          {{comment.message}}
                         </div>
                         <!-- /.comment-text -->
                       </div>
