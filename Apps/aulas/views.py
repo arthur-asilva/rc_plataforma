@@ -6,7 +6,7 @@ from Apps.usuarios.views import auth
 from Apps.tools.views import decode, gradePlanUpload
 from Apps.tools.data_choices import MONTHS
 from .models import GradePlanComment, GradePlan
-from django.db.models import Q, Count
+from django.db.models import Count, Q
 
 
 
@@ -22,13 +22,6 @@ def GradePlansView(request):
 
     if user.grupo.nome != 'administrador' and mode == 'comment':
         group_filter['class_plan__posted_by'] = group_filter.pop('posted_by')
-
-
-    # if user.grupo.nome != 'administrador':
-    #     group_filter = { 'posted_by': user, 'viewed': False }
-    # else:
-    #     group_filter = { 'viewed': False }
-
 
 
     data = {
@@ -105,13 +98,25 @@ def NovoPlanejamentoView(request):
 
 
 def VisualizarView(request):
+    
     plan_id = int(decode(request.GET['p']))
     user = auth(request)
+    grade_plan = GradePlan.objects.get(id=plan_id)
+    grade_plan_comments = GradePlanComment.objects.filter(class_plan__id=plan_id).order_by('-id')
+
+    if grade_plan.posted_by != user:
+        grade_plan.viewed = True
+        grade_plan.save()
+    
+    grade_plan_comments.filter(~Q(posted_by=user), viewed=False).update(viewed=True)
+
     data = {
-        'grade_plan': GradePlan.objects.get(id=plan_id),
-        'plan_comments': GradePlanComment.objects.filter(class_plan__id=plan_id).order_by('-id')
+        'grade_plan': grade_plan,
+        'plan_comments': grade_plan_comments
     }
+
     data = {**data, **getClassPlans(user)}
+
     return render(request, 'aulas/visualizar.html', data)
 
 
@@ -130,13 +135,19 @@ def EnviadosView(request):
 
 
 def getClassPlans(user):
-    data = {}
-    if user.grupo.nome == 'administrador':
-        data['grade_plans'] = GradePlan.objects.filter(viewed=True).order_by('-id')
-        data['unviewed_comments'] = GradePlanComment.objects.filter(viewed=False).order_by('-id')
-        data['unviewed_plans'] = GradePlan.objects.filter(viewed=False)
-    else:
-        data['grade_plans'] = GradePlan.objects.filter(posted_by__id=user.id).order_by('-id')
-        data['unviewed_comments'] = GradePlanComment.objects.filter(class_plan__posted_by__id=user.id, viewed=False).order_by('-id')
+
+    viewed_filter = { 'viewed': True }
+    unviewed_filter = { 'viewed': False }
+
+    data = {
+        'unviewed_comments': GradePlanComment.objects.filter(~Q(posted_by=user), viewed=False).order_by('-id'),
+    }
+
+    if user.grupo.nome != 'administrador':
+        viewed_filter['posted_by'] = unviewed_filter['posted_by'] = user
+        data['unviewed_comments'] = data['unviewed_comments'].filter(class_plan__posted_by=user)
+
+    data['grade_plans'] = GradePlan.objects.filter(**viewed_filter).order_by('-id')
+    data['unviewed_plans'] = GradePlan.objects.filter(**unviewed_filter)
 
     return data
