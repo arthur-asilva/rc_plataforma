@@ -1,0 +1,121 @@
+{% extends '../base.html' %}
+{% load custom_tags %}
+{% block content %}
+{% usuarioNivel as nivel %}
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+  
+      <!-- Main content -->
+      <section class="content" style="padding-top: 10px;">
+        <div class="row">
+          <div class="col-md-3">
+            <a href="{% url 'new_plan_view' %}" class="btn btn-primary btn-block mb-3">Novo envio</a>
+  
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Folders</h3>
+  
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+                  <li class="nav-item">
+                    <a href="{% url 'grade_plans_view' %}?mode=viewed" class="nav-link">
+                      <i class="far fa-envelope-open"></i>
+                      Vistos
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'grade_plans_view' %}?mode=unviewed" class="nav-link">
+                      <i class="far fa-envelope"></i>
+                      Não vistos
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_plans.count}}</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'grade_plans_view' %}?mode=comment" class="nav-link">
+                      <i class="far fa-comment-dots"></i>
+                      Comentados
+                      <span class="badge bg-primary float-right mt-1">{{unviewed_comments.count}}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        
+        
+          </div>
+          <!-- /.col -->
+          <div class="col-md-9">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title"><strong class="text-uppercase">{{grade_plan.school.nome}}</strong>
+                <br>{{grade_plan.school.unidade.cidade}}, {{grade_plan.school.unidade.estado}}</h3>
+                <a href="{% url 'responder_planejamento_view' %}?p={{grade_plan.id|encodeDecode:'encode'}}" class="btn btn-default float-right"><i class="fas fa-reply"></i> Responder</a>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body p-0 pb-4">
+                <!-- /.mailbox-controls -->
+                <div class="mailbox-read-message" style="text-align: justify">
+                  <h5 class="text-uppercase">{{grade_plan.posted_by.nome}}</h5>
+                  <span class="mailbox-read-time">Planejamento referente a {{grade_plan.lesson_month|dateFormat:'%m/%Y'}}</span>
+
+                    <a href="{{grade_plan.document}}" class="d-block p-4 text-center" download>
+                      <h1>
+                      <i class="fas fa-inbox d-block"></i>
+                      </h1>Baixar arquivo
+                    </a>
+                    {{grade_plan.description}}
+                  <span class="mailbox-read-time float-right">{{grade_plan.creation_date}}</span>
+                </div>
+              <!-- /.card-body -->
+              <form method="post">
+                {% csrf_token %}
+                <div class="form-group" style="margin: 10px;">
+                  <textarea name="mensagem" class="form-control" maxlength="254" style="height: 100px;" placeholder="Comentário..."></textarea>
+                </div>
+                <div class="form-group" align="right">
+                  <button type="submit" style="margin-right: 10px;" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                </div>
+                {% if grade_plan_comments.count > 0 %}
+                  <div class="card-footer card-comments">
+                    {% for comment in grade_plan_comments %}
+                      <div class="card-comment">
+                        <!-- User image -->
+                        <img class="img-circle img-sm" src="{{comment.posted_by.foto}}" alt="User Image">
+
+                        <div class="comment-text">
+                          <span class="username">
+                            {{comment.posted_by.nome}}
+                            <span class="text-muted float-right">{{comment.creation_date|dateFormat:'%d/%m/%Y'}}</span>
+                          </span><!-- /.username -->
+                          {{comment.message}}
+                        </div>
+                        <!-- /.comment-text -->
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <!-- /.card-comment -->
+                {% endif %}
+                <!-- /.card-footer -->
+              </form>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </section>
+    
+    <!-- /.content -->
+  </div>
+
+  {% endblock %}

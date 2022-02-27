@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+{% usuarioNivel as nivel %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  
+  <section class="content" style="padding-top: 10px">
+      <div class="row">
+        <div class="col-md-3">
+          <a href="#" class="btn btn-primary btn-block mb-3 text-uppercase">{{turma|indexTurma}}</a>
+          <div class="accordion" id="accordionExample">
+            <div class="card" style="max-height: 392px; overflow-y:auto">
+              {% for tutorial in tutoriais %}
+              <div class="card-header" id="heading{{tutorial.id}}" style="padding: 5px 0px">
+                <h5 class="mb-0">
+                  <button class="btn btn-link text-uppercase" type="button" data-toggle="collapse" data-target="#collapse{{tutorial.id}}" aria-expanded="true" aria-controls="collapse{{tutorial.id}}">
+                    {{tutorial.nome|limitadorTexto:22}}
+                    {% if tutorial.plano_1 != '' or tutorial.plano_2 or tutorial.programacao != '' %}
+                      <i class="fas fa-check text-success"></i>
+                    {% endif %}
+                  </button2
+                </h5>
+              </div>
+          
+              <div id="collapse{{tutorial.id}}" class="collapse {% if id == tutorial.id %}show{% endif %}" aria-labelledby="heading{{tutorial.id}}" data-parent="#accordionExample">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item pl-0">
+                    <a href="{% url 'tutoriais_view' %}?t={{tutorial.turma|encodeDecode:'encode'}}&id={{tutorial.id|encodeDecode:'encode'}}&data={{tutorial.video|encodeDecode:'encode'}}#heading{{tutorial.id}}" class="nav-link {% if tutorial.video == '' %}disabled{% endif %}">
+                      <i class="fas fa-tv"></i> Vídeo
+                    </a>
+                  </li>
+                  <li class="list-group-item pl-0">
+                    <a href="{% url 'tutoriais_view' %}?t={{tutorial.turma|encodeDecode:'encode'}}&id={{tutorial.id|encodeDecode:'encode'}}&data={{tutorial.plano_2|encodeDecode:'encode'}}#heading{{tutorial.id}}" class="nav-link {% if tutorial.plano_2 == '' %}disabled{% endif %}">
+                      <i class="fas fa-file-alt"></i> Conteúdo propedêutico
+                    </a>
+                  </li>
+                  <li class="list-group-item pl-0">
+                    <a href="{% url 'tutoriais_view' %}?t={{tutorial.turma|encodeDecode:'encode'}}&id={{tutorial.id|encodeDecode:'encode'}}&data={{tutorial.plano_1|encodeDecode:'encode'}}#heading{{tutorial.id}}" class="nav-link {% if tutorial.plano_1 == '' %}disabled{% endif %}">
+                      <i class="fas fa-tools"></i> Conteúdo técnico
+                    </a>
+                  </li>
+                  <li class="list-group-item pl-0">
+                    <a href="{% url 'tutoriais_view' %}?t={{tutorial.turma|encodeDecode:'encode'}}&id={{tutorial.id|encodeDecode:'encode'}}&data={{tutorial.programacao|encodeDecode:'encode'}}#heading{{tutorial.id}}" class="nav-link {% if tutorial.programacao == '' %}disabled{% endif %}">
+                      <i class="fas fa-file-code"></i> Programação
+                    </a>
+                  </li>
+                  <li class="list-group-item pl-0" {% if not 'Cadastro' in nivel %}style="border-bottom: 1px solid rgba(0,0,0,.125)"{% endif %}>
+                    <a href="{% url 'complemento_tutoriais' %}?t={{tutorial.id|encodeDecode:'encode'}}" class="nav-link">
+                      <i class="fas fa-folder-plus"></i> Complementos
+                    </a>
+                  </li>
+                  {% if 'Cadastro' in nivel %}
+                    <li class="list-group-item pl-0" style="border-bottom: 1px solid rgba(0,0,0,.125)">
+                      <a href="{% url 'cadastro_tutoriais' %}?id={{tutorial.id|encodeDecode:'encode'}}&t={{turma|encodeDecode:'encode'}}" class="nav-link text-dark">
+                        <i class="fas fa-pencil-alt"></i> Editar
+                      </a>
+                    </li>
+                  {% endif %}
+                </ul>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <!-- /.card -->
+
+          {% if 'Cadastro' in nivel %}
+            <a href="{% url 'cadastro_tutoriais' %}?t={{turma|encodeDecode:'encode'}}" class="btn btn-primary btn-block mb-3 text-uppercase">Adicionar novo</a>
+          {% endif %}
+
+        </div>
+        <!-- /.col -->
+        {% if material != None %}
+          <div class="col-md-9">
+            <div class="card card-primary card-outline">
+
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+
+                {% if not material|fileType %}
+                  <img width="100%" src="{{material}}" title="Plano de aula" frameborder="0" />
+                {% else %}
+                  <iframe src="{{material}}" width="100%" height="450" frameborder="0" allowfullscreen></iframe>
+                {% endif %}
+                
+
+                <div class="card-footer" style="margin-top: -6px">
+                  <form action="#" method="post">
+                    <div class="input-group">
+                      <input type="text" disabled name="message" placeholder="Escreva uma mensagem ..." class="form-control">
+                      <span class="input-group-append">
+                        <button disabled type="submit" class="btn btn-primary disabled">Enviar</button>
+                      </span>
+                    </div>
+                  </form>
+                </div>
+
+                <div style="display: none">
+                  <div class="post" style="margin: 10px;">
+                    <div class="user-block">
+                      <img class="img-circle img-bordered-sm" src="{% static 'dist/img/user1-128x128.jpg' %}" alt="user image">
+                      <span class="username">
+                        <a href="#">Jonathan Burke Jr.</a>
+                        <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
+                      </span>
+                      <span class="description">Shared publicly - 7:30 PM today</span>
+                    </div>
+                    <!-- /.user-block -->
+                    <p>
+                      Lorem ipsum represents a long-held tradition for designers,
+                      typographers and the like. Some people hate it and argue for
+                      its demise, but others ignore the hate as they create awesome
+                      tools to help create filler text for everyone from bacon lovers
+                      to Charlie Sheen fans.
+                    </p>
+
+                    <p class="pb-2">
+                      <span class="float-right">
+                        <a href="#" class="link-black text-sm">
+                          <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
+                        </a>
+                      </span>
+                    </p>
+
+                  </div>
+                  <!-- /.post -->
+
+
+                  <div class="post" style="margin: 10px">
+                    <div class="user-block">
+                      <img class="img-circle img-bordered-sm" src="{% static 'dist/img/user7-128x128.jpg' %}" alt="user image">
+                      <span class="username">
+                        <a href="#">Jonathan Burke Jr.</a>
+                        <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
+                      </span>
+                      <span class="description">Shared publicly - 7:30 PM today</span>
+                    </div>
+                    <!-- /.user-block -->
+                    <p>
+                      Lorem ipsum represents a long-held tradition for designers,
+                      typographers and the like. Some people hate it and argue for
+                      its demise, but others ignore the hate as they create awesome
+                      tools to help create filler text for everyone from bacon lovers
+                      to Charlie Sheen fans.
+                    </p>
+
+                    <p class="pb-2">
+                      <span class="float-right">
+                        <a href="#" class="link-black text-sm">
+                          <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
+                        </a>
+                      </span>
+                    </p>
+
+                  </div>
+                <!-- /.post -->
+                </div>
+              </div>
+              <!-- /.card-body -->
+
+            </div>
+            <!-- /.card -->
+          </div>
+        {% endif %}
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </section>
+  
+  <!-- /.content -->
+</div>
+
+{% endblock %}

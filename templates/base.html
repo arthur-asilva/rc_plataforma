@@ -1,0 +1,435 @@
+{% load static %}
+{% load custom_tags %}
+
+{% usuarioNivel as nivel %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robô Ciência LT 3 | Dashboard</title>
+
+  <link rel="icon" type="image/ico" href="{% static 'dist/img/favicon.ico' %}" />
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- IonIcons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <!-- daterange picker -->
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+  <!-- jQuery -->
+  <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'plugins/inputmask/jquery.inputmask.min.js' %}"></script>
+  <script type="text/javascript">
+  $(function(){
+    $('.select2').select2();
+  })
+  </script>
+  
+  <style>
+    .select2-container .select2-selection--single {
+      height: 38px !important;
+      border: 1px solid #ced4da !important;
+    }
+    .collapse {  transition: height 0.01s; }  
+  </style>
+
+</head>
+<!--
+`body` tag options:
+
+  Apply one or more of the following classes to to the body tag
+  to get the desired effect
+
+  * sidebar-collapse
+  * sidebar-mini
+-->
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{% url 'dash_view' %}" class="nav-link">Início</a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Contato</a>
+      </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      
+      <!-- Messages Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-comments"></i>
+          <span id="chat_notificacoes" class="badge badge-danger navbar-badge"></span>
+        </a>
+        {% comment %} <div id="conversasRecentes" class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          
+        </div> {% endcomment %}
+      </li>
+      <!-- Notifications Dropdown Menu -->
+      {% comment %} <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-bell"></i>
+          <span class="badge badge-warning navbar-badge">{% planejamentoRespondido %}</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-item dropdown-header">Notificações</span>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-file mr-2"></i> {% planejamentoRespondido %} Retorno(s)
+<!--            <span class="float-right text-muted text-sm">2 days</span>-->
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+        </div>
+      </li> {% endcomment %}
+      <!-- Notifications Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="fas fa-user-cog"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-item dropdown-header">Configurações de usuário</span>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'logout_view' %}" class="dropdown-item">
+            <i class="fas fa-sign-out-alt mr-2"></i> Sair
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'trocar_senha' %}" class="dropdown-item">
+            <i class="fas fa-key mr-2"></i> Trocar senha
+          </a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{% url 'dash_view' %}" class="brand-link">
+      <img src="{% static 'dist/img/default_user.jpeg' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span class="brand-text font-weight-light">Robô Ciência LT 3</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img class="img-circle img-sm" src="{% usuarioFoto %}" alt="User Image" style="height: 33.58px">
+        </div>
+        <div class="info">
+          <a href="{% url 'trocar_senha' %}" class="d-block">{% usuarioNome %}</a>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+
+        {% usuarioSegmentos as segmentos %}
+
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+          <li class="nav-item">
+            <a href="{% url 'dash_view' %}" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tv"></i>
+              <p>
+                Tutoriais
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+
+            {% if 'infantil' in segmentos %}
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fas fa-book nav-icon"></i>
+                  <p>
+                    Infantil
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  {% for segmento in 'infantil'|usuarioSegmento %}
+                    {% if forloop.counter0 > 1 %}
+                      <li class="nav-item">
+                        <a href="{% url 'tutoriais_view' %}?t={{forloop.counter0|encodeDecode:'encode'}}" class="nav-link">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>{{segmento}}</p>
+                        </a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul>
+            {% endif %}
+
+
+            {% if 'anos_iniciais' in segmentos %}
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fas fa-book nav-icon"></i>
+                  <p>
+                    Anos iniciais
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  {% for segmento in 'anos_iniciais'|usuarioSegmento %}
+                    <li class="nav-item">
+                      <a href="{% url 'tutoriais_view' %}?t={{forloop.counter0|soma:5|encodeDecode:'encode'}}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{segmento}}</p>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul>
+            {% endif %}
+
+
+            {% if 'anos_finais' in segmentos %}
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fas fa-book nav-icon"></i>
+                  <p>
+                    Anos finais
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  {% for segmento in 'anos_finais'|usuarioSegmento %}
+                    <li class="nav-item">
+                      <a href="{% url 'tutoriais_view' %}?t={{forloop.counter0|soma:10|encodeDecode:'encode'}}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{segmento}}</p>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul>
+            {% endif %}
+
+
+            {% if 'medio' in segmentos %}
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fas fa-book nav-icon"></i>
+                  <p>
+                    Ens. Médio
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  {% for segmento in 'medio'|usuarioSegmento %}
+                    <li class="nav-item">
+                      <a href="{% url 'tutoriais_view' %}?t={{forloop.counter0|soma:14|encodeDecode:'encode'}}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{segmento}}</p>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul>
+            {% endif %}
+
+          </li>
+
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-graduation-cap"></i>
+              <p>
+                Alunos
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i><p>Frequência</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i><p>Avaliações</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i><p>Relatórios</p>
+                </a>
+              </li>
+
+            </ul>
+          </li>
+
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tasks"></i>
+              <p>
+                Aulas
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+
+              <li class="nav-item">
+                <a href="{% url 'grade_plans_view' %}?mode=viewed" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Planejamentos</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Horários</p>
+                </a>
+              </li>
+
+            </ul>
+          </li>
+
+          {% if 'Cadastro' in nivel %}
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-toolbox"></i>
+              <p>
+                Controle
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+
+              <li class="nav-item">
+                <a href="{% url 'add_turma' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Escolas e Turmas</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url 'add_usuario' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Usuários</p>
+                </a>
+              </li>
+
+            </ul>
+          </li>
+          {% endif %}
+          
+        </ul>
+        
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+    {% block content %}
+    {% endblock %}
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2014-2022 <a href="https://robociencia.com.br">Robô Ciência</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 3.1.0
+    </div>
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{% static 'dist/js/pages/dashboard3.js' %}"></script>
+
+<script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
+
+<!-- AdminLTE -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+
+
+{% comment %} <script type="text/javascript">
+  
+  data = { csrfmiddlewaretoken: "{{csrf_token}}" }
+
+  $.post( 'http://' + window.location.href.split('/')[2] + '/notificacoes/', data, function(result) {
+      
+    $('#chat_notificacoes').html(result.mensagens.length);
+
+    for(var i=0; i<result.mensagens.length; i++){
+      $('#conversasRecentes').append(returnNotifyLayout(result.mensagens[i].de_usuario__nome, result.mensagens[i].de_usuario__foto, result.mensagens[i].data_str, result.mensagens[i].mensagem));
+    }
+    $('#conversasRecentes').append('<a href="{% url 'contatos_view' %}" class="dropdown-item dropdown-footer">Todas as mensagens</a>');
+  }, "json");
+
+  function returnNotifyLayout(nome, foto, data_str, mensagem){
+    var layout = '<a href="#" class="dropdown-item">' +
+                 '<div class="media"><img src="' + foto + '" alt="User Avatar" class="img-size-50 mr-3 img-circle">' +
+                 '<div class="media-body"><h3 class="dropdown-item-title">' + nome + 
+                 '<span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span></h3>' +
+                 '<p class="text-sm">' + mensagem + '</p>' +
+                 '<p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>' + data_str + '</p></div></div></a>' +
+                 '<div class="dropdown-divider"></div>';
+    return layout;
+  }
+
+</script> {% endcomment %}
+
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+{% extends '../base.html' %}
+{% load custom_tags %}
+{% block content %}
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+
+      <!-- Main content -->
+      <section class="content" style="padding-top: 10px;">
+        <div class="row">
+
+          <!-- /.col -->
+          <div class="col-md-9" style="margin: 0px auto">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">Novo envio</h3>
+              </div>
+              <!-- /.card-header -->
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Índice</label>
+                        <input type="number" name="indice" value="{% if material.indice != None %}{{material.indice}}{% else %}{{total_por_turma}}{% endif %}" step="1" min="1" class="form-control">
+                      </div>
+                    </div>
+                      <!-- /.form-group -->
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Turma</label>
+                        <select  name="turma" class="form-control select2" style="width: 100%;">
+                          {% for turma in turmas %}
+                            <option value="{{forloop.counter0}}" {% if material.turma == forloop.counter0 or turma_sel == forloop.counter0 %}selected{% endif %}>{{forloop.counter0|indexTurma}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <!-- /.form-group -->
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Nome do projeto</label>
+                    <input type="text" name="nome" value="{{material.nome}}" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Vídeo</label>
+                    <input type="text" name="video" value="{{material.video}}" class="form-control">
+                  </div>
+
+                  <div class="row">
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                          <div class="btn btn-default btn-file">
+                          <i class="fas fa-paperclip"></i> Plano técnico
+                          {% if material.plano_1 != '' %}<i class="fas fa-check text-success"></i>{% endif %}
+                          <input type="file" name="plano_1" accept="application/pdf">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4" align="center">
+                      <div class="form-group">
+                          <div class="btn btn-default btn-file">
+                          <i class="fas fa-paperclip"></i> Plano propedêutico
+                          {% if material.plano_2 != '' %}<i class="fas fa-check text-success"></i>{% endif %}
+                          <input type="file" name="plano_2" accept="application/pdf">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4" align="right">
+                      <div class="form-group">
+                          <div class="btn btn-default btn-file">
+                          <i class="fas fa-paperclip"></i> Programação
+                          {% if material.programacao != '' %}<i class="fas fa-check text-success"></i>{% endif %}
+                          <input type="file" name="programacao">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="card-footer">
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                    <i class="fas fa-trash"></i>
+                    Excluir
+                  </button>
+                  <div class="float-right">
+                    <a href="{% url 'tutoriais_view' %}?t={{turma}}" class="btn btn"><i class="fas fa-reply"></i> Voltar</a>
+                    <button type="submit" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                  </div>
+                </div>
+              </form>
+              <!-- /.card-body -->
+
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </section>
+
+    <!-- /.content -->
+</div>
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Excluir tutorial</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Tem certeza que deseja continuar? A operação não poderá ser desfeita.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <a href="{% url 'apagar_tutoriais' %}?id={{material.id|encodeDecode:'encode'}}&t={{turma}}" class="btn btn-danger">Continuar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

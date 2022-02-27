@@ -1,0 +1,96 @@
+{% extends '../base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+
+{% block content %}
+<div class="content-wrapper">
+
+    <!-- Main content -->
+    <section class="content" style="padding-top: 10px">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-3">
+
+            <!-- Profile Image -->
+            <div class="card card-primary card-outline">
+              <div class="card-body box-profile">
+                <div class="text-center">
+                  <img class="profile-user-img img-fluid img-circle"
+                       src="{{usuario.foto}}" style="height: 100px"
+                       alt="User profile picture">
+                </div>
+                <h3 class="profile-username text-center">{{usuario.nome}}</h3>
+                <p class="text-muted text-center text-uppercase">{{usuario.grupo.nome}}</p>
+                <hr>
+                <strong><i class="fas fa-map-marker-alt mr-1"></i> Onde estou</strong>
+                {% for turma in turmas %}
+                  <p class="text-muted">{{turma.escola__unidade__estado}}, {{turma.escola__unidade__cidade}}</p>
+                {% endfor %}
+                <a href="{% url 'logout_view' %}" class="btn btn-primary btn-block"><b>Sair</b></a>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <!-- About Me Box -->
+
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-9">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">Configurações</h3>
+              </div>
+              <!-- /.card-header -->
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Senha atual</label>
+                        <input type="password" name="senha_atual" class="form-control"/>
+                      </div>
+                    </div>
+                      <!-- /.form-group -->
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Nova senha</label>
+                        <input type="password" name="senha_nova" class="form-control"/>
+                      </div>
+                      <!-- /.form-group -->
+                    </div>
+
+                  </div>
+                  <div class="form-group">
+                    <div class="btn btn-default btn-file">
+                      <i class="fas fa-paperclip"></i> Foto de perfil
+                      <input type="file" name="anexo" accept="image/*">
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="float-right">
+                    <button type="submit" class="btn btn-primary"><i class="far fa-envelope"></i> Enviar</button>
+                  </div>
+                </div>
+              </form>
+              <!-- /.card-body -->
+
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+{% endblock %}
