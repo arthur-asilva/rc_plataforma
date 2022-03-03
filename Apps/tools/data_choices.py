@@ -36,5 +36,20 @@ MONTHS = (
     ('12', 'Dezembro'),
 )
 
+WEAK_DAYS = (
+    ('1', 'Segunda'),
+    ('2', 'Terça'),
+    ('3', 'Quarta'),
+    ('4', 'Quinta'),
+    ('5', 'Sexta'),
+    ('6', 'Sábado'),
+)
+
+COURSEWARE = {
+    'GRADE_BOOK': ['Alfa', 'Beta', 'Gama', '1º ano', '2º ano', '3º ano', '4º ano', '5º ano', '6º ano', '7º ano', '8º ano', '9º ano', 'Psi', 'Delta'],
+    'EDITION': ['2018', '2019', '2020', '2021', '2022'],
+    'VOLUME': ['1', '2', 'Papert', 'Galileu']
+}
+
 def gradesPerSegments(segment):
     return SEGMENTOS[segment]

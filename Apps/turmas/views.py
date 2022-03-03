@@ -1,8 +1,9 @@
+from distutils.command.build import build
 from django.shortcuts import render, redirect
-from Apps.turmas.models import Unidade, Escola, Turma
+from Apps.turmas.models import Unidade, Escola, Turma, Buildkit
 from Apps.usuarios.models import Usuario
 from django.conf import settings
-from Apps.tools.views import AuthValidation
+from Apps.tools.views import AuthValidation, decode
 
 
 @AuthValidation
@@ -50,3 +51,20 @@ def CadastroTurmaView(request):
         'editar': editar
     }
     return render(request, 'turmas/cadastros.html', data)
+
+
+
+def CoursewareView(request):
+    school = request.GET.get('id', None)
+    school = Escola.objects.get(id=decode(school))
+    classes = Turma.objects.filter(escola=school).order_by('turno', 'nome')
+    buildkits = Buildkit.objects.all()
+
+    data = {
+        'school': school,
+        'classes': classes,
+        'buildkits': buildkits,
+        'class_book': None
+    }
+
+    return render(request, 'turmas/courseware.html', data)
