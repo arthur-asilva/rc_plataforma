@@ -1,7 +1,7 @@
 from pyexpat import model
 from django.db import models
 from Apps.usuarios.models import Usuario
-from Apps.tools.data_choices import GRADE_SHIFTS
+from Apps.tools.data_choices import GRADE_SHIFTS, WEAK_DAYS
 
 class Unidade(models.Model):
     cidade = models.CharField(max_length=150)
@@ -29,10 +29,11 @@ class Turma(models.Model):
 
     nome = models.CharField(max_length=254)
     escola = models.ForeignKey(Escola, verbose_name="escola", on_delete=models.PROTECT)
-    quantidade_alunos = models.IntegerField()
     professor = models.ForeignKey(Usuario, verbose_name="professor", on_delete=models.SET_NULL, blank=True, null=True)
     turno = models.CharField(max_length=2, choices=GRADE_SHIFTS)
-    dia_aula = models.CharField(max_length=254, blank=True, null=True)
+    dia_aula = models.CharField(max_length=254, choices=WEAK_DAYS, blank=True, null=True)
+    complemento = models.CharField(max_length=10, blank=True, null=True)
+    ordem_aula = models.IntegerField()
     observacao = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -54,7 +55,8 @@ class Courseware(models.Model):
     book_2 = models.CharField(max_length=254, blank=True, null=True)
     buildkit_1 = models.ForeignKey(Buildkit, related_name="buildkit_1", on_delete=models.PROTECT)
     buildkit_2 = models.ForeignKey(Buildkit, related_name="buildkit_2", on_delete=models.PROTECT)
-    distribution_year = models.IntegerField()
+    quantity = models.IntegerField(blank=True, null=True)
+    distribution_year = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.class_grade.nome} from  {self.class_grade.escola.nome}, {self.distribution_year}"

@@ -1,9 +1,9 @@
-from distutils.command.build import build
 from django.shortcuts import render, redirect
 from Apps.turmas.models import Unidade, Escola, Turma, Buildkit
 from Apps.usuarios.models import Usuario
 from django.conf import settings
 from Apps.tools.views import AuthValidation, decode
+from Apps.tools.data_choices import GRADE_SHIFTS, WEAK_DAYS
 
 
 @AuthValidation
@@ -35,9 +35,12 @@ def CadastroTurmaView(request):
         if turma_add != None:
             turma.nome = request.POST['turma']
             turma.turno = request.POST['turno']
+            turma.complemento = request.POST['complemento']
             turma.escola = Escola.objects.get(id=request.POST['escola'])
             turma.professor = Usuario.objects.get(id=request.POST['professor'])
-            turma.quantidade_alunos = request.POST['quantidade']
+            turma.dia_aula = request.POST['dia_aula']
+            turma.observacao = request.POST['observacao']
+            turma.ordem_aula = request.POST['ordem']
             turma.save()
             return redirect('../add_turma/?e=0')
 
@@ -45,11 +48,14 @@ def CadastroTurmaView(request):
         'aba': aba,
         'unidades': Unidade.objects.all().order_by('estado', 'cidade'),
         'turmas': settings.TURMAS,
+        'turnos': GRADE_SHIFTS,
+        'dias': WEAK_DAYS,
         'escolas': Escola.objects.all(),
         'turmas_cadastradas': Turma.objects.all(),
         'professores': Usuario.objects.all(),
         'editar': editar
     }
+
     return render(request, 'turmas/cadastros.html', data)
 
 
