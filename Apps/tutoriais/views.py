@@ -59,6 +59,7 @@ def TutoriaisCadastroView(request):
             material.programacao = uploadArquivo(programacao, url + '/programacao')
 
         material.save()
+        return redirect('../tutoriais/?t=' + request.GET['t'])
 
     data = {
         'turmas': settings.TURMAS,
