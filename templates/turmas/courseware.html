@@ -1,0 +1,106 @@
+{% extends '../base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+
+<style>
+    .list-container{ border-bottom: 1px solid #ccc; }
+</style>
+
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Materiais didáticos</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        
+
+
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                        <strong class="text-uppercase">{{school.nome}}</strong>
+                        <br>{{school.unidade.cidade}}, {{school.unidade.estado}}
+                    </h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <form method="post">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        {% for class in classes %}
+                        <div class="list-container">
+                            <div class="form-group">
+                                <span class="text-uppercase">{{class.nome}}</span>, turno: {{class.turno}}
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Livro 1</label>
+                                    <select name="school" class="form-control select2" style="width: 100%;">
+                                    {% for escola in escolas %}
+                                        <option value="{{escola.escola__id}}">{{escola.escola__nome}}</option>
+                                      {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Livro 2</label>
+                                    <select name="month" class="form-control select2" style="width: 100%;">
+                                    {% for month in months %}
+                                        <option value="{{month.0}}">{{month.1}}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Kit 1</label>
+                                    <select name="buildkit1" class="form-control select2" style="width: 100%;">
+                                        <option></option>
+                                        {% for buildkit in buildkits %}
+                                        <option value="{{buildkit.id}}">{{buildkit.name}}</option>
+                                      {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Kit 2</label>
+                                    <select name="buildkit2" class="form-control select2" style="width: 100%;">
+                                        <option></option>
+                                        {% for buildkit in buildkits %}
+                                            <option value="{{buildkit.id}}">{{buildkit.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer">
+                      <div class="float-right">
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Enviar</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.card -->
+              </div>
+            </div>
+        
+    </div>
+</div>
+
+<script type="text/javascript">
+  $('#table_courseware').hide();
+  function showHide(e) { $(e).animate({height: 'toggle'}); }
+</script>
+
+{% endblock %}
