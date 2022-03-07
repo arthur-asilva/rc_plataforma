@@ -80,8 +80,8 @@ def NovoPlanejamentoView(request):
         grade_plan.lesson_month = f"{timezone.now().year}-{request.POST['month']}-01"
         grade_plan.description = request.POST['description']
         if document != None:
-            url = f"ClassPlan/{grade_plan.lesson_month}/{grade_plan.school.id}_{grade_plan.school.nome}/"
-            grade_plan.document = gradePlanUpload(document, url + f"/{posted_by.id}_{grade_plan.school.nome}_{request.POST['month']}")
+            url = f"ClassPlan/{grade_plan.lesson_month}/{grade_plan.school.id}_{grade_plan.school.id}/"
+            grade_plan.document = gradePlanUpload(document, url + f"/{posted_by.id}_{grade_plan.school.id}_{request.POST['month']}")
         grade_plan.save()
         return redirect('../gradeplans/?mode=viewed')
 
