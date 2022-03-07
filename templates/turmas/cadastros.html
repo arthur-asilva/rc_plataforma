@@ -141,59 +141,74 @@
                               <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="hidden" name="turma_add" />
+
                                 <div class="card-body">
+                                  <div class="row">
+                                    <div class="form-group col-md-8">
+                                      <label>Escola</label>
+                                      <select name="escola" class="form-control select2" style="width: 100%;">
+                                        {% for escola in escolas %}
+                                          <option {% if editar.escola.id == escola.id %}selected{% endif %} value="{{escola.id}}">{{escola.nome}}, {{escola.unidade.cidade}}/{{escola.unidade.estado}}</option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+
+                                    <div class="form-group col-md-4">
+                                      <label>Professor</label>
+                                      <select name="professor" class="form-control select2" style="width: 100%;">
+                                        {% for usuario in professores %}
+                                          <option {% if editar.professor.id == usuario.id %}selected{% endif %} value="{{usuario.id}}">{{usuario.nome}}</option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                  </div>
                 
                                   <div class="row">
-                                    <div class="col-md-6">
-                                      <div class="form-group">
+                                    <div class="form-group col-md-1">
+                                        <label>Ordem</label>
+                                        <input type="number" min="1" max="7" step="1" value="1" class="form-control" name="ordem" />
+                                      </div>
+
+                                      <div class="form-group col-md-3">
                                         <label>Turma</label>
                                         <select name="turma" class="form-control select2" style="width: 100%;">
                                           {% for turma in turmas %}
-                                            {% if forloop.counter0 > 1 %}
                                               <option {% if editar.nome == turma %}selected{% endif %} value="{{turma}}">{{turma}}</option>
-                                            {% endif %}
                                           {% endfor %}
                                         </select>
                                       </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-group">
+
+                                      <div class="form-group col-md-2">
+                                        <label>Complemento</label>
+                                        <input type="text" placeholder="A, B, C, 1, 2, 3..." name="complemento" class="form-control" {% if editar != 0 %}value="{{editar.complemento}}"{% endif %} />
+                                      </div>
+
+                                      <div class="form-group col-md-3">
                                         <label>Turno</label>
                                         <select name="turno" class="form-control select2" style="width: 100%;">
-                                          <option {% if editar.turno == "M" %}selected{% endif %} value="M">Manhã</option>
-                                          <option {% if editar.turno == "T" %}selected{% endif %} value="T">Tarde</option>
-                                        </select>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label>Escola</label>
-                                    <select name="escola" class="form-control select2" style="width: 100%;">
-                                      {% for escola in escolas %}
-                                        <option {% if editar.escola.id == escola.id %}selected{% endif %} value="{{escola.id}}">{{escola.nome}}, {{escola.unidade.cidade}}/{{escola.unidade.estado}}</option>
-                                      {% endfor %}
-                                    </select>
-                                  </div>
-
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <div class="form-group">
-                                        <label>Professor</label>
-                                        <select name="professor" class="form-control select2" style="width: 100%;">
-                                          {% for usuario in professores %}
-                                            <option {% if editar.professor.id == usuario.id %}selected{% endif %} value="{{usuario.id}}">{{usuario.nome}}</option>
+                                          {% for turno in turnos %}
+                                            <option {% if editar.turno == turno.0 %}selected{% endif %} value="{{turno.0}}">{{turno.1}}</option>
                                           {% endfor %}
                                         </select>
                                       </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-group">
-                                        <label>Quantidade de alunos</label>
-                                        <input type="number" name="quantidade" class="form-control" {% if editar != 0 %}value="{{editar.quantidade_alunos}}"{% endif %} />
+
+                                      <div class="form-group col-md-3">
+                                        <label>Dia da aula</label>
+                                        <select name="dia_aula" class="form-control select2" style="width: 100%;">
+                                          {% for dia in dias %}
+                                            <option {% if editar.dia_aula == dia.0 %}selected{% endif %} value="{{dia.0}}">{{dia.1}}</option>
+                                          {% endfor %}
+                                        </select>
                                       </div>
-                                    </div>
                                   </div>
+
+                                  
+                                  <div class="form-group">
+                                    <label>Observação</label>
+                                    <textarea name="observacao" class="form-control">{{editar.observacao}}</textarea>
+                                  </div>
+                                  
+
 
                                   <div class="float-right">
                                     <a href="{% url 'dash_view' %}" class="btn btn"><i class="fas fa-reply"></i> Voltar</a>
