@@ -1,9 +1,7 @@
-from re import U
 from django.shortcuts import render, redirect
 from .models import Grupo, Usuario
 from Apps.turmas.models import Turma
 from Apps.tools.views import encode, decode, uploadArquivo, AuthValidation
-from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 import random, string
@@ -19,7 +17,7 @@ def LoginView(request):
             request.session['auth_session'] = encode(usuario[0].id)
             return redirect('dash/')
 
-    if request.GET.get('conf', None) != None and request.GET.get('u', None):
+    if request.GET.get('conf', None) != None and request.GET.get('u', None) != None:
         usuario = Usuario.objects.get(id=int(decode(request.GET['u'])))
         usuario.status = True
         usuario.save()
@@ -98,7 +96,7 @@ def CadastroProfessorView(request):
             'senha': senha
         }
 
-        send_html_email(usuario.email, 'Confirmação de cadastro Robô Ciência', 'usuarios/email_confirmacao.html', context, "Dont Reply <coordenacao@robociencia.com.br>")
+        send_html_email(request.POST['email'], 'Confirmação de cadastro Robô Ciência', 'usuarios/email_confirmacao.html', context, "Dont Reply <coordenacao@robociencia.com.br>")
             
         return redirect('../add_usuario/')
 
