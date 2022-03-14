@@ -89,6 +89,10 @@ def filtroSegmentos(value, args):
             segmentos = 'Todos'
         else:
             segmentos = value.replace('_', ' ').replace(';', ', ').replace('e', 'é')
+            break_line = segmentos.split(', ')
+            if len(break_line) == 3:
+                break_line[2] = '\n' + break_line[2]
+                segmentos = ', '.join(break_line)
     if args == 'status':
         segmentos = 'Pendente'
         if value:

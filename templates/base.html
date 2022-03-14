@@ -9,6 +9,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Robô Ciência LT 3 | Dashboard</title>
 
+
+  
+
   <link rel="icon" type="image/ico" href="{% static 'dist/img/favicon.ico' %}" />
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -23,9 +26,11 @@
   <!-- Tempusdominus Bootstrap 4 -->
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+
   <!-- jQuery -->
   <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
   <script src="{% static 'plugins/inputmask/jquery.inputmask.min.js' %}"></script>
+
   <script type="text/javascript">
   $(function(){
     $('.select2').select2();
@@ -37,7 +42,10 @@
       height: 38px !important;
       border: 1px solid #ced4da !important;
     }
-    .collapse {  transition: height 0.01s; }  
+    .collapse {  transition: height 0.01s; }
+    .dataTables_filter{
+      float: right;
+    }
   </style>
 
 </head>
@@ -385,6 +393,20 @@
 
 <!-- REQUIRED SCRIPTS -->
 
+<!-- DataTables  & Plugins -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
 <!-- Bootstrap -->
 <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 
@@ -401,6 +423,30 @@
 <!-- OPTIONAL SCRIPTS -->
 <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
 
+<script type="text/javascript">
+$(document).ready(function () {
+
+    /* 
+    $('#dtVerticalScrollExample').DataTable({
+      "scrollY": "350px",
+      "scrollCollapse": true,
+    });
+    $('.dataTables_length').addClass('bs-select');
+    */
+
+
+    $("#example1").DataTable({
+      language: { search: '', searchPlaceholder: "Procurar..." },
+      responsive: true,
+      lengthChange: false,
+      autoWidth: false,
+      buttons: ["csv", "excel", "pdf", "print"],
+      //"scrollY": "350px",
+      //"scrollCollapse": true,
+      paging: false
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+});
+</script>
 
 {% comment %} <script type="text/javascript">
   
