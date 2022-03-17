@@ -37,7 +37,12 @@ def weekDate(value, args):
 def usuarioNome(context):
     request = context['request']
     usuario = Usuario.objects.get( id=auth(request).id )
-    return usuario.nome
+    nome = usuario.nome.split(' ')
+    if len(nome) > 1:
+        nome = nome[0] + ' ' + nome[len(nome)-1]
+        return nome
+    else:
+        return usuario.nome
 
 
 @register.simple_tag(takes_context=True)

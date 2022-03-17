@@ -1,12 +1,9 @@
 import glob
-
 from cryptography.fernet import Fernet
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import glob, os
-
 from django.shortcuts import redirect
-
 from Apps.usuarios.models import Usuario
 
 
@@ -62,3 +59,17 @@ def AuthValidation(func):
                     return redirect('../dash/')
         return result
     return wrap
+
+
+def showAlert(title, message, message_type):
+
+    data = None
+    
+    if message != None and title != None and message_type != None:
+        data = {
+            'message': message,
+            'title': title,
+            'type': message_type
+        }
+
+    return data
