@@ -1,12 +1,12 @@
-from re import U
 from django.shortcuts import render, redirect
 from .models import Grupo, Usuario
 from Apps.turmas.models import Turma
-from Apps.tools.views import encode, decode, uploadArquivo, AuthValidation
-from django.conf import settings
+from Apps.tools.views import encode, decode, uploadArquivo, AuthValidation, showAlert
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 import random, string
+
+
 
 @AuthValidation
 def LoginView(request):
@@ -25,6 +25,42 @@ def LoginView(request):
         usuario.save()
 
     return render(request, 'login.html')
+
+
+
+def ForgotPasswordView(request):
+
+    email = request.POST.get('email', None)
+
+    data = {}
+
+    if email != None:
+        user = Usuario.objects.filter(email=email)
+        if user.exists():
+            user = user[0]
+            context = {
+                'id': encode(user.id),
+                'nome': user.nome.split(' ')[0]
+            }
+            print(user.email)
+            send_html_email(user.email, 'Robô Ciência - Recuperar senha', 'usuarios/email_password_recover.html', context, "Dont Reply <coordenacao@robociencia.com.br>")
+            data['message'] = showAlert('Recuperação de senha.', 'Tudo feito, confira na caixa de entrada </br>do email informado, lá você encontrará as etapas para criar sua nova senha.', 'alert-success')
+        else:
+            data['message'] = showAlert('Falha na recuperação.', 'Não encontramos os seus dados de usuário, por favor, entre em contato </br>com o administrador para confirmar suas informações de login.', 'alert-warning')
+
+    return render(request, 'usuarios/forgot_password.html', data)
+
+
+
+def RecoverPasswordView(request):
+    
+    user = request.GET.get('u', None)
+
+    if user != None:
+        pass
+
+    return render(request, 'usuarios/recover_password.html')
+
 
 
 def send_html_email(to_list, subject, template_name, context, sender='coordenacao@robociencia.com.br'):
