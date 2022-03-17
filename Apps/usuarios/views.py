@@ -42,7 +42,6 @@ def ForgotPasswordView(request):
                 'id': encode(user.id),
                 'nome': user.nome.split(' ')[0]
             }
-            print(user.email)
             send_html_email(user.email, 'Robô Ciência - Recuperar senha', 'usuarios/email_password_recover.html', context, "Dont Reply <coordenacao@robociencia.com.br>")
             data['message'] = showAlert('Recuperação de senha.', 'Tudo feito, confira na caixa de entrada </br>do email informado, lá você encontrará as etapas para criar sua nova senha.', 'alert-success')
         else:
@@ -56,10 +55,15 @@ def RecoverPasswordView(request):
     
     user = request.GET.get('u', None)
 
-    if user != None:
-        pass
+    data = {'message': None}
 
-    return render(request, 'usuarios/recover_password.html')
+    if user != None and request.method == 'POST':
+        user = Usuario.objects.get(id=decode(user))
+        user.senha = request.POST['senha']
+        user.save()
+        data['message'] = showAlert('Atualização de senha.', 'Sua senha foi refeita com sucesso. Clique em <a href="http://ec2-3-138-174-188.us-east-2.compute.amazonaws.com">AQUI</a> para ser redirecionado a página de login.', 'alert-success')
+
+    return render(request, 'usuarios/recover_password.html', data)
 
 
 
